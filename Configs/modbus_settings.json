@@ -1,0 +1,18 @@
+{
+  "DeviceName": "Ethernet Data Logger",
+  "SlaveId": 1,
+  "Resolution": 16,
+  "MinADC": 0,
+  "MaxADC": 65535,
+
+  "Registers": {
+    "SteamPressure": {
+      "Id": 1,
+      "StartAddress": 0,
+      "Length": 1,
+      "MinMeasure": 0.0,
+      "MaxMeasure": 16.0,
+      "Description": "Steam pressure (bar)"
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "AdvisoryWindowMinutes": 1,
+  "CommitWindowMinutes": 10,
+  "MaxCorrectionEnergyMJ": 5000
+}
