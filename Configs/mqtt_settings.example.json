@@ -1,0 +1,12 @@
+{
+  "BrokerAddress": "BROKER_ADDRESS",
+  "BrokerPort": BROKER_PORT,
+  "ClientId": "CLIENT_ID",
+  "Username": "USERNAME",
+  "Password": "PASSWORD",
+  "KeepAliveSeconds": 60,
+  "AutoReconnectSeconds": 5,
+  "ConnectTimeoutSeconds": 10,
+  "DisconnectTimeoutSeconds": 10,
+  "MaxPendingMessages": 500
+}
