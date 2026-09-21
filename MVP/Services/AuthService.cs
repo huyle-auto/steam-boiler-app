@@ -58,7 +58,8 @@ namespace SteamBoilerApp.MVP.Services
                 Username = username,
                 PasswordSalt = salt,
                 HashedPassword = hash,
-                LastLogin = null
+                LastLogin = null,
+                Role = "Operator"
             });
 
             await db.SaveChangesAsync();

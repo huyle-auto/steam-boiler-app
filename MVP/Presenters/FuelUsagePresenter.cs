@@ -1,4 +1,5 @@
-﻿using SteamBoilerApp.ChildMVP.Models;
+﻿using Microsoft.VisualBasic.Logging;
+using SteamBoilerApp.ChildMVP.Models;
 using SteamBoilerApp.ChildMVP.Presenters;
 using SteamBoilerApp.ChildMVP.Views;
 using SteamBoilerApp.MVP.Contracts;
@@ -7,12 +8,13 @@ namespace SteamBoilerApp.MVP.Presenters
 {
     public class FuelUsagePresenter
     {
-        private readonly IFuelUsageView? _fuelUsageView;
-        private readonly IFuelUsageModel? _fuelUsageModel;
+        private readonly IFuelUsageView _fuelUsageView;
+        private readonly IFuelUsageModel _fuelUsageModel;
         private readonly System.Windows.Forms.Timer _timer;
         private readonly IDatabaseHealthService _dbHealthService;
 
         private bool _isViewLoaded = false;
+        private DateTime _lastRecordTimestamp;
 
         public FuelUsagePresenter(IFuelUsageView fuelUsageView, IFuelUsageModel fuelUsageModel, IDatabaseHealthService dbHealthService)
         {
@@ -21,7 +23,7 @@ namespace SteamBoilerApp.MVP.Presenters
             this._fuelUsageView.OnViewLoad += FuelUsageView_OnViewLoad;
             this._fuelUsageView.OnFuelUseDayChanged += FuelUsageView_OnFuelUseDayChanged;
             this._fuelUsageView.OnFuelFeedDayChanged += FuelUsageView_OnFuelFeedDayChanged;
-            this._fuelUsageView.OnAddNewLogClicked += FuelUsageView_OnAddNewLogClicked;
+            this._fuelUsageView.OnRefreshAllLogClicked += FuelUsageView_OnFuelFeedDayChanged;
 
             // Timer for auto-refresh data
             _timer = new System.Windows.Forms.Timer();
@@ -47,18 +49,46 @@ namespace SteamBoilerApp.MVP.Presenters
             this._timer.Stop();
         }
 
-        private void OnTick(object? sender, EventArgs e)
+        private async void OnTick(object? sender, EventArgs e)
         {
-            FuelUsageView_OnFuelUseDayChanged(sender, e);
-            FuelUsageView_OnFuelFeedDayChanged(sender, e);
+            try
+            {
+                // 1. Fuel feed log
+                var latest = await _fuelUsageModel.GetLatestFeedLogTimeAsync();
+
+                if (latest > _lastRecordTimestamp)
+                {
+                    _lastRecordTimestamp = latest;
+                    var log = await _fuelUsageModel.GetFuelFeedByDayAsync(_fuelUsageView.FuelFeedLogDate);;
+                    _fuelUsageView.RefreshFuelLogKeepFilter(log);
+                }
+
+                // 2. Fuel usage by type
+                var totalFuelByType = await this._fuelUsageModel.GetFuelFeedLogByDayAndTypeAsync(this._fuelUsageView.FuelUseDay);
+
+                _fuelUsageView.ShowFuelUsageByType(totalFuelByType);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error with database: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
         }
 
-        private void FuelUsageView_OnViewLoad(object? sender, EventArgs e)
+        private async void FuelUsageView_OnViewLoad(object? sender, EventArgs e)
         {
             if (_dbHealthService.IsConnected)
             {
                 this._timer.Tick += OnTick;
                 this._timer.Start();
+
+                // 1. Show current day fuel feed log
+                var log = await _fuelUsageModel.GetFuelFeedByDayAsync(_fuelUsageView.FuelFeedLogDate);
+                _fuelUsageView.RefreshAllFuelLog(log);
+
+                // 2. Show current day fuel usage by type
+                var totalFuelByType = await this._fuelUsageModel.GetFuelFeedLogByDayAndTypeAsync(this._fuelUsageView.FuelUseDay);
+                _fuelUsageView.ShowFuelUsageByType(totalFuelByType);
             }
         }
 
@@ -66,10 +96,10 @@ namespace SteamBoilerApp.MVP.Presenters
         {
             try
             {
-                var log = await _fuelUsageModel.GetFuelFeedLogAllAsync(_fuelUsageView.FuelFeedLogDate);
+                var log = await _fuelUsageModel.GetFuelFeedByDayAsync(_fuelUsageView.FuelFeedLogDate);
                 if (log != null)
                 {
-                    _fuelUsageView.ShowFuelFeedLog(log);
+                    _fuelUsageView.RefreshAllFuelLog(log);
                 }
             }
             catch (Exception ex)
@@ -82,7 +112,7 @@ namespace SteamBoilerApp.MVP.Presenters
         {
             try
             {
-                var totalFuelByType = await this._fuelUsageModel.GetFuelFeedLogByDayAsync(this._fuelUsageView.FuelUseDay);
+                var totalFuelByType = await this._fuelUsageModel.GetFuelFeedLogByDayAndTypeAsync(this._fuelUsageView.FuelUseDay);
 
                 _fuelUsageView.ShowFuelUsageByType(totalFuelByType);
             }
@@ -92,17 +122,16 @@ namespace SteamBoilerApp.MVP.Presenters
             }   
         }
 
-        private void FuelUsageView_OnAddNewLogClicked(object? sender, EventArgs e)
+        public void Dispose()
         {
-            using (var view = new AddFuelLogView())
-            {
-                // Assume MODEL has no memory leak potential with PRESENTER
-                // -> no manual dispose -> GC collects all
-                using (var presenter = new AddFuelLogPresenter(view, new AddFuelLogModel()))
-                {
-                    view.ShowDialog();
-                }
-            }
+            this._fuelUsageView.OnFuelFeedDayChanged -= FuelUsageView_OnFuelFeedDayChanged;
+            this._fuelUsageView.OnFuelUseDayChanged -= FuelUsageView_OnFuelUseDayChanged;
+            this._fuelUsageView.OnViewLoad -= FuelUsageView_OnViewLoad;
+
+            this._timer.Tick -= OnTick;
+            this._dbHealthService.DatabaseConnected -= OnDBConnected;
+            this._dbHealthService.DatabaseDisconnected -= OnDBDisconnected;
+            this._timer.Dispose();
         }
     }
 }

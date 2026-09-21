@@ -62,7 +62,7 @@ namespace SteamBoilerApp.ChildMVP.Views
         public void LoadLookups(List<FuelType> fuelTypes)
         {
             cboFuelType.DataSource = fuelTypes;
-            cboFuelType.DisplayMember = "FuelName";
+            cboFuelType.DisplayMember = "FuelNameVn";
             cboFuelType.ValueMember = "FuelTypeId";
             cboFuelType.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             cboFuelType.AutoCompleteSource = AutoCompleteSource.ListItems;

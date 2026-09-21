@@ -13,6 +13,8 @@ namespace SteamBoilerApp.MVP.Contracts
     {
         void LoadInitialData(List<SensorDatum> data);
         void AppendSensorPoint(DateTime timestamp, double value);
+        void SetStatusText(string status);
+        void FlashingStatusLED(Color color);
 
         void UpdateCountdowns(TimeSpan advisoryRemaining, TimeSpan commitRemaining);
         void SetPidConfig(PidControllerConfig pidConfig);
@@ -25,6 +27,11 @@ namespace SteamBoilerApp.MVP.Contracts
 
         void EvaluatePressureState(double avgPressure, Dictionary<string, double> fuelOptions);
         void ShowMessageOnFuelInjected();
+
+        void UpdateAlarmState();
+
+        void AddFeedAnnotation(DateTime timestamp, string text);
+        void ClearAnnotations();
 
         DateTime FromDate { get; }
         DateTime ToDate { get; }
@@ -43,5 +50,8 @@ namespace SteamBoilerApp.MVP.Contracts
         event EventHandler ApplyParamClicked;
         event EventHandler CancelAutoTuneClicked;
         event EventHandler<string> AddFuelClicked;
+        event EventHandler ToggleAlarmClicked;
+
+        bool IsAlarmEnabled { get; set; }
     }
 }

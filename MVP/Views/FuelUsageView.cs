@@ -1,4 +1,5 @@
-﻿using SteamBoilerApp.MVP.Contracts;
+﻿using SteamBoilerApp.Models;
+using SteamBoilerApp.MVP.Contracts;
 using SteamBoilerApp.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,9 @@ namespace SteamBoilerApp.MVP.Views
         public event EventHandler? OnViewLoad;
         public event EventHandler? OnFuelUseDayChanged;
         public event EventHandler? OnFuelFeedDayChanged;
-        public event EventHandler? OnAddNewLogClicked;
+        public event EventHandler? OnRefreshAllLogClicked;
+
+        private BindingSource _feedLogBs = [];
 
         public void ShowFuelUsageByType(Dictionary<string, int> data)
         {
@@ -71,19 +74,118 @@ namespace SteamBoilerApp.MVP.Views
             OnFuelFeedDayChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        private void btnAddFuelLog_Click(object sender, EventArgs e)
+        private void btnRefreshLog_Click(object sender, EventArgs e)
         {
-            OnAddNewLogClicked?.Invoke(this, EventArgs.Empty);
+            OnRefreshAllLogClicked?.Invoke(this, EventArgs.Empty);
         }
 
-        public void ShowFuelFeedLog(List<FuelFeedSummary> data)
+        public void RefreshFuelLogKeepFilter(List<FuelFeedLog> data)
         {
-            tableFuelFeedLog.DataSource = data;
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(() => RefreshFuelLogKeepFilter(data)));
+                return;
+            }
+
+            // 1️. Capture filter and sort from BindingSource
+            string? currentFilter = _feedLogBs.Filter;
+            string? currentSort = _feedLogBs.Sort;
+
+            // 2️. Replace data source only
+            _feedLogBs.DataSource = BuildFeedLogTable(data);
+
+            // 3️. Restore filter
+            if (!string.IsNullOrWhiteSpace(currentFilter))
+                _feedLogBs.Filter = currentFilter;
+
+            // 4️. Restore sort
+            if (!string.IsNullOrWhiteSpace(currentSort))
+                _feedLogBs.Sort = currentSort;
+        }
+
+        public void RefreshAllFuelLog(List<FuelFeedLog> data)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(() => RefreshAllFuelLog(data)));
+                return;
+            }
+
+            // 1. Reset the UI icons and internal filter/sort strings
+            tableFuelFeedLog.CleanFilter();
+            tableFuelFeedLog.CleanSort();
+            tableFuelFeedLog.ClearSelection();
+
+            // 2. Clear any active filter on the data source itself
+            if (tableFuelFeedLog.DataSource is BindingSource bs)
+            {
+                bs.Filter = null;
+                bs.Sort = null;
+            }
+
+            // 3. Load fresh table
+            LoadFuelFeedLog(data);
+        }
+
+        public void LoadFuelFeedLog(List<FuelFeedLog> data)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(() => LoadFuelFeedLog(data)));
+            }
+
+            _feedLogBs.DataSource = BuildFeedLogTable(data);
+
+            tableFuelFeedLog.AutoGenerateColumns = true;
+            tableFuelFeedLog.AllowUserToAddRows = false;
             tableFuelFeedLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            tableFuelFeedLog.DataSource = _feedLogBs;
+
+            tableFuelFeedLog.Columns["Id"].ReadOnly = true;
+            tableFuelFeedLog.Columns["Id"].Visible = false;
+            tableFuelFeedLog.Columns["Fuel Type"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            tableFuelFeedLog.Columns["Mass"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            tableFuelFeedLog.Columns["Unit"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            tableFuelFeedLog.Columns["Timestamp"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        }
+
+        private static DataTable BuildFeedLogTable(List<FuelFeedLog> list)
+        {
+            var table = new DataTable();
+
+            table.Columns.Add("Id", typeof(int));
+            table.Columns.Add("Fuel Type", typeof(string));
+            table.Columns.Add("Mass", typeof(int));
+            table.Columns.Add("Unit", typeof(string));
+
+            table.Columns.Add("Timestamp", typeof(DateTime));
+
+            foreach (var item in list)
+            {
+                table.Rows.Add(
+                    item.FuelFeedLogId,
+                    item.FuelType.FuelName,
+                    item.FuelMass,
+                    item.Unit.Symbol,
+                    item.Timestamp
+                );
+            }
+
+            return table;
+        }
+
+        private static void EnableDoubleBuffer(Control control)
+        {
+            typeof(Control)
+                .GetProperty("DoubleBuffered",
+                    System.Reflection.BindingFlags.NonPublic |
+                    System.Reflection.BindingFlags.Instance)!
+                .SetValue(control, true);
         }
 
         private void FuelUsageView_Load(object sender, EventArgs e)
         {
+            EnableDoubleBuffer(tableFuelFeedLog);
             OnViewLoad?.Invoke(this, EventArgs.Empty);
         }
     }

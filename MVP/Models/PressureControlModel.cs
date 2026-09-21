@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.WindowsAPICodePack.Sensors;
 using SteamBoilerApp.BusinessLogic;
 using SteamBoilerApp.Models;
 using SteamBoilerApp.MVP.Contracts;
 using SteamBoilerApp.MVP.Controls;
+using System.Diagnostics;
 
 namespace SteamBoilerApp.MVP.Models
 {
@@ -83,6 +85,18 @@ namespace SteamBoilerApp.MVP.Models
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<List<FuelFeedLog>?> GetFeedLogByTimeRangeAsync(DateTime from, DateTime to)
+        {
+            using var db = new ProductionDbContext();
+
+            return await db.FuelFeedLogs
+                .Include(l => l.FuelType)
+                .Include(l => l.Unit)
+                .Where(l => l.Timestamp >= from && l.Timestamp < to)
+                .OrderByDescending(f => f.Timestamp)
+                .ToListAsync();
+        }
+
         public async Task SavePidRuntimeLogAsync(double sp, double pv, double output)
         {
             using var db = new ProductionDbContext();
@@ -104,24 +118,39 @@ namespace SteamBoilerApp.MVP.Models
         public async Task<double> GetAveragePVAsync(DateTime from, DateTime to)
         {
             using var db = new ProductionDbContext();
-            var samples = await db.SensorData
+            var query = db.SensorData
+                .AsNoTracking()
                 .Where(x =>
                         x.SensorId == 1 &&
                         x.Timestamp >= from &&
-                        x.Timestamp <= to)
+                        x.Timestamp < to)
                 .OrderBy(x => x.Timestamp)
                 .Select(x => new
                 {
                     x.Timestamp,
                     x.EngineeringValue
-                })
-                .ToListAsync();
+                });
 
-            return ComputeTimeWeightedAverage(
-                samples.Select(s => (s.Timestamp, (double)s.EngineeringValue)).ToList(),
-                from,
-                to
-            );
+            var sw = Stopwatch.StartNew();
+
+            var samples = new List<(DateTime ts, double value)>();
+
+            await foreach (var s in query.AsAsyncEnumerable())
+            {
+                samples.Add((s.Timestamp, (double)s.EngineeringValue));
+            }
+
+            sw.Stop();
+
+            Debug.WriteLine($"List latency: {sw.ElapsedMilliseconds} ms");
+
+            return ComputeTimeWeightedAverage(samples, from, to);
+
+            //return ComputeTimeWeightedAverage(
+            //    samples.Select(s => (s.Timestamp, (double)s.EngineeringValue)).ToList(),
+            //    from,
+            //    to
+            //);
         }
 
         // TWMA

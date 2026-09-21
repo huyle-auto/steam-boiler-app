@@ -52,8 +52,15 @@
             label8 = new Label();
             label9 = new Label();
             txtCtrlRoomIPAddr = new TextBox();
+            panel3 = new Panel();
+            lblMqttStatus = new Label();
+            btnMqttDisconnect = new Button();
+            label12 = new Label();
+            label3 = new Label();
+            btnMqttConnect = new Button();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
+            panel3.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
@@ -206,7 +213,7 @@
             txtIPAddress.Name = "txtIPAddress";
             txtIPAddress.Size = new Size(158, 29);
             txtIPAddress.TabIndex = 0;
-            txtIPAddress.Text = "192.168.60.170";
+            txtIPAddress.Text = "10.0.166.210";
             txtIPAddress.TextAlign = HorizontalAlignment.Center;
             // 
             // panel2
@@ -223,7 +230,7 @@
             panel2.Controls.Add(label8);
             panel2.Controls.Add(label9);
             panel2.Controls.Add(txtCtrlRoomIPAddr);
-            panel2.Location = new Point(16, 181);
+            panel2.Location = new Point(16, 379);
             panel2.Name = "panel2";
             panel2.Size = new Size(1068, 156);
             panel2.TabIndex = 11;
@@ -363,10 +370,85 @@
             txtCtrlRoomIPAddr.Text = "192.168.60.170";
             txtCtrlRoomIPAddr.TextAlign = HorizontalAlignment.Center;
             // 
+            // panel3
+            // 
+            panel3.Controls.Add(lblMqttStatus);
+            panel3.Controls.Add(btnMqttDisconnect);
+            panel3.Controls.Add(label12);
+            panel3.Controls.Add(label3);
+            panel3.Controls.Add(btnMqttConnect);
+            panel3.Location = new Point(16, 186);
+            panel3.Name = "panel3";
+            panel3.Size = new Size(1068, 172);
+            panel3.TabIndex = 12;
+            // 
+            // lblMqttStatus
+            // 
+            lblMqttStatus.Anchor = AnchorStyles.Top;
+            lblMqttStatus.BackColor = Color.Red;
+            lblMqttStatus.BorderStyle = BorderStyle.FixedSingle;
+            lblMqttStatus.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblMqttStatus.Location = new Point(166, 124);
+            lblMqttStatus.Name = "lblMqttStatus";
+            lblMqttStatus.Size = new Size(36, 23);
+            lblMqttStatus.TabIndex = 12;
+            // 
+            // btnMqttDisconnect
+            // 
+            btnMqttDisconnect.Anchor = AnchorStyles.Top;
+            btnMqttDisconnect.AutoSize = true;
+            btnMqttDisconnect.Font = new Font("Segoe UI", 12F);
+            btnMqttDisconnect.Location = new Point(894, 55);
+            btnMqttDisconnect.Name = "btnMqttDisconnect";
+            btnMqttDisconnect.Size = new Size(104, 31);
+            btnMqttDisconnect.TabIndex = 16;
+            btnMqttDisconnect.Text = "Stop";
+            btnMqttDisconnect.UseVisualStyleBackColor = true;
+            btnMqttDisconnect.Click += btnMqttDisconnect_Click;
+            // 
+            // label12
+            // 
+            label12.Anchor = AnchorStyles.Top;
+            label12.AutoSize = true;
+            label12.FlatStyle = FlatStyle.Flat;
+            label12.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label12.Location = new Point(77, 124);
+            label12.Name = "label12";
+            label12.Size = new Size(52, 21);
+            label12.TabIndex = 11;
+            label12.Text = "Status";
+            label12.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.FlatStyle = FlatStyle.Flat;
+            label3.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label3.Location = new Point(9, 12);
+            label3.Name = "label3";
+            label3.Size = new Size(108, 21);
+            label3.TabIndex = 11;
+            label3.Text = "MQTT Broker";
+            label3.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // btnMqttConnect
+            // 
+            btnMqttConnect.Anchor = AnchorStyles.Top;
+            btnMqttConnect.AutoSize = true;
+            btnMqttConnect.Font = new Font("Segoe UI", 12F);
+            btnMqttConnect.Location = new Point(768, 55);
+            btnMqttConnect.Name = "btnMqttConnect";
+            btnMqttConnect.Size = new Size(104, 31);
+            btnMqttConnect.TabIndex = 15;
+            btnMqttConnect.Text = "Start";
+            btnMqttConnect.UseVisualStyleBackColor = true;
+            btnMqttConnect.Click += btnMqttConnect_Click;
+            // 
             // AppSettingView
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(panel3);
             Controls.Add(panel2);
             Controls.Add(panel1);
             Name = "AppSettingView";
@@ -375,6 +457,8 @@
             panel1.PerformLayout();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
+            panel3.ResumeLayout(false);
+            panel3.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -397,15 +481,18 @@
         private Label label5;
         private Button button1;
         private Button button2;
-        private Label label6;
-        private TextBox textBox1;
         private Label label7;
-        private TextBox textBox2;
         private Label label8;
         private Label label9;
         private TextBox txtCtrlRoomIPAddr;
         private Button btnCtrlRoomDisconnect;
         private Button btnCtrlRoomConnect;
         private TextBox txtCtrlRoomPort;
+        private Panel panel3;
+        private Label label3;
+        private Button btnMqttDisconnect;
+        private Button btnMqttConnect;
+        private Label lblMqttStatus;
+        private Label label12;
     }
 }

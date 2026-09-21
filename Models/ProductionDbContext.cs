@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 
 namespace SteamBoilerApp.Models;
@@ -55,7 +56,7 @@ public partial class ProductionDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-AP9S4SF, 1433;Initial Catalog=ProductionDB;User ID=huyle;Password=huyle;Trust Server Certificate=True");
+        => optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["ProductionDB"].ConnectionString);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -125,6 +126,9 @@ public partial class ProductionDbContext : DbContext
                 .HasColumnType("decimal(4, 2)")
                 .HasColumnName("FuelLHV");
             entity.Property(e => e.FuelName).HasMaxLength(50);
+            entity.Property(e => e.FuelNameVn)
+                .HasMaxLength(255)
+                .HasColumnName("FuelName_VN");
 
             entity.HasOne(d => d.Unit).WithMany(p => p.FuelTypes)
                 .HasForeignKey(d => d.UnitId)

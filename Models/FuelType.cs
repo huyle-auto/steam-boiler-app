@@ -13,6 +13,8 @@ public partial class FuelType
 
     public int UnitId { get; set; }
 
+    public string? FuelNameVn { get; set; }
+
     public virtual ICollection<FuelFeedLog> FuelFeedLogs { get; set; } = new List<FuelFeedLog>();
 
     public virtual Unit Unit { get; set; } = null!;

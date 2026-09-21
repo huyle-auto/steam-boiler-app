@@ -30,8 +30,10 @@
         {
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             panel1 = new Panel();
+            lblFourthFuelName = new Label();
+            label4 = new Label();
+            lblFourthFuelUsed = new Label();
             lblThirdFuelName = new Label();
             label8 = new Label();
             lblThirdFuelUsed = new Label();
@@ -44,15 +46,12 @@
             lblFirstFuelUsed = new Label();
             label1 = new Label();
             dtpFuelFeedLog = new DateTimePicker();
-            btnAddFuelLog = new Button();
-            tableFuelFeedLog = new DataGridView();
+            btnRefreshLog = new Button();
             panel2 = new Panel();
-            lblFourthFuelName = new Label();
-            label4 = new Label();
-            lblFourthFuelUsed = new Label();
+            tableFuelFeedLog = new Zuby.ADGV.AdvancedDataGridView();
             panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)tableFuelFeedLog).BeginInit();
             panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)tableFuelFeedLog).BeginInit();
             SuspendLayout();
             // 
             // panel1
@@ -76,6 +75,49 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(309, 397);
             panel1.TabIndex = 0;
+            // 
+            // lblFourthFuelName
+            // 
+            lblFourthFuelName.AutoSize = true;
+            lblFourthFuelName.BackColor = Color.Transparent;
+            lblFourthFuelName.FlatStyle = FlatStyle.Flat;
+            lblFourthFuelName.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblFourthFuelName.Location = new Point(106, 308);
+            lblFourthFuelName.Margin = new Padding(0);
+            lblFourthFuelName.Name = "lblFourthFuelName";
+            lblFourthFuelName.Size = new Size(52, 21);
+            lblFourthFuelName.TabIndex = 14;
+            lblFourthFuelName.Text = "Fuel 4";
+            lblFourthFuelName.Visible = false;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.BackColor = Color.Transparent;
+            label4.FlatStyle = FlatStyle.Flat;
+            label4.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label4.ForeColor = Color.FromArgb(0, 84, 166);
+            label4.Location = new Point(18, 336);
+            label4.Margin = new Padding(0);
+            label4.Name = "label4";
+            label4.Size = new Size(29, 21);
+            label4.TabIndex = 13;
+            label4.Text = "kg";
+            // 
+            // lblFourthFuelUsed
+            // 
+            lblFourthFuelUsed.AutoSize = true;
+            lblFourthFuelUsed.BackColor = Color.Transparent;
+            lblFourthFuelUsed.FlatStyle = FlatStyle.Flat;
+            lblFourthFuelUsed.Font = new Font("Segoe UI", 20.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblFourthFuelUsed.ForeColor = Color.FromArgb(0, 84, 166);
+            lblFourthFuelUsed.Location = new Point(14, 299);
+            lblFourthFuelUsed.Margin = new Padding(0);
+            lblFourthFuelUsed.Name = "lblFourthFuelUsed";
+            lblFourthFuelUsed.Size = new Size(56, 37);
+            lblFourthFuelUsed.TabIndex = 12;
+            lblFourthFuelUsed.Text = "0.0";
+            lblFourthFuelUsed.Visible = false;
             // 
             // lblThirdFuelName
             // 
@@ -180,8 +222,9 @@
             // dtpFuelUsageDay
             // 
             dtpFuelUsageDay.CalendarFont = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dtpFuelUsageDay.CustomFormat = "dd/MM/yyyy";
             dtpFuelUsageDay.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dtpFuelUsageDay.Format = DateTimePickerFormat.Short;
+            dtpFuelUsageDay.Format = DateTimePickerFormat.Custom;
             dtpFuelUsageDay.Location = new Point(181, 12);
             dtpFuelUsageDay.Name = "dtpFuelUsageDay";
             dtpFuelUsageDay.Size = new Size(109, 29);
@@ -234,122 +277,78 @@
             // 
             dtpFuelFeedLog.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             dtpFuelFeedLog.CalendarFont = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dtpFuelFeedLog.CustomFormat = "dd/MM/yyyy";
             dtpFuelFeedLog.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dtpFuelFeedLog.Format = DateTimePickerFormat.Short;
+            dtpFuelFeedLog.Format = DateTimePickerFormat.Custom;
             dtpFuelFeedLog.Location = new Point(14, 12);
             dtpFuelFeedLog.Name = "dtpFuelFeedLog";
             dtpFuelFeedLog.Size = new Size(109, 29);
             dtpFuelFeedLog.TabIndex = 12;
             dtpFuelFeedLog.ValueChanged += dtpFuelFeedLog_ValueChanged;
             // 
-            // btnAddFuelLog
+            // btnRefreshLog
             // 
-            btnAddFuelLog.AutoSize = true;
-            btnAddFuelLog.BackColor = Color.Transparent;
-            btnAddFuelLog.FlatStyle = FlatStyle.System;
-            btnAddFuelLog.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnAddFuelLog.Location = new Point(129, 9);
-            btnAddFuelLog.Name = "btnAddFuelLog";
-            btnAddFuelLog.Size = new Size(101, 33);
-            btnAddFuelLog.TabIndex = 13;
-            btnAddFuelLog.Text = "Add New";
-            btnAddFuelLog.TextImageRelation = TextImageRelation.ImageBeforeText;
-            btnAddFuelLog.UseVisualStyleBackColor = false;
-            btnAddFuelLog.Visible = false;
-            btnAddFuelLog.Click += btnAddFuelLog_Click;
+            btnRefreshLog.AutoSize = true;
+            btnRefreshLog.BackColor = Color.Transparent;
+            btnRefreshLog.FlatStyle = FlatStyle.System;
+            btnRefreshLog.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnRefreshLog.Location = new Point(129, 9);
+            btnRefreshLog.Name = "btnRefreshLog";
+            btnRefreshLog.Size = new Size(101, 33);
+            btnRefreshLog.TabIndex = 13;
+            btnRefreshLog.Text = "Refresh";
+            btnRefreshLog.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnRefreshLog.UseVisualStyleBackColor = false;
+            btnRefreshLog.Click += btnRefreshLog_Click;
+            // 
+            // panel2
+            // 
+            panel2.BackColor = Color.White;
+            panel2.Controls.Add(tableFuelFeedLog);
+            panel2.Controls.Add(dtpFuelFeedLog);
+            panel2.Controls.Add(btnRefreshLog);
+            panel2.Location = new Point(350, 17);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(733, 397);
+            panel2.TabIndex = 15;
             // 
             // tableFuelFeedLog
             // 
+            tableFuelFeedLog.AllowUserToAddRows = false;
             tableFuelFeedLog.AllowUserToDeleteRows = false;
-            tableFuelFeedLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            tableFuelFeedLog.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            tableFuelFeedLog.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            tableFuelFeedLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            tableFuelFeedLog.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
             tableFuelFeedLog.BackgroundColor = Color.White;
+            tableFuelFeedLog.BorderStyle = BorderStyle.None;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle1.BackColor = SystemColors.Control;
-            dataGridViewCellStyle1.Font = new Font("Segoe UI", 12F);
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
             dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
             dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
             dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
             tableFuelFeedLog.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             tableFuelFeedLog.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = SystemColors.Window;
             dataGridViewCellStyle2.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             dataGridViewCellStyle2.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle2.Padding = new Padding(3);
-            dataGridViewCellStyle2.SelectionBackColor = SystemColors.MenuHighlight;
+            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
             dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
             tableFuelFeedLog.DefaultCellStyle = dataGridViewCellStyle2;
+            tableFuelFeedLog.EditMode = DataGridViewEditMode.EditProgrammatically;
+            tableFuelFeedLog.FilterAndSortEnabled = true;
+            tableFuelFeedLog.FilterStringChangedInvokeBeforeDatasourceUpdate = true;
             tableFuelFeedLog.Location = new Point(0, 57);
+            tableFuelFeedLog.MaxFilterButtonImageHeight = 23;
             tableFuelFeedLog.Name = "tableFuelFeedLog";
             tableFuelFeedLog.ReadOnly = true;
-            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle3.BackColor = SystemColors.Control;
-            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
-            dataGridViewCellStyle3.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
-            tableFuelFeedLog.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
-            tableFuelFeedLog.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            tableFuelFeedLog.Size = new Size(733, 269);
+            tableFuelFeedLog.RightToLeft = RightToLeft.No;
+            tableFuelFeedLog.Size = new Size(733, 340);
+            tableFuelFeedLog.SortStringChangedInvokeBeforeDatasourceUpdate = true;
             tableFuelFeedLog.TabIndex = 14;
-            // 
-            // panel2
-            // 
-            panel2.BackColor = Color.White;
-            panel2.Controls.Add(dtpFuelFeedLog);
-            panel2.Controls.Add(tableFuelFeedLog);
-            panel2.Controls.Add(btnAddFuelLog);
-            panel2.Location = new Point(350, 17);
-            panel2.Name = "panel2";
-            panel2.Size = new Size(733, 326);
-            panel2.TabIndex = 15;
-            // 
-            // lblFourthFuelName
-            // 
-            lblFourthFuelName.AutoSize = true;
-            lblFourthFuelName.BackColor = Color.Transparent;
-            lblFourthFuelName.FlatStyle = FlatStyle.Flat;
-            lblFourthFuelName.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            lblFourthFuelName.Location = new Point(106, 308);
-            lblFourthFuelName.Margin = new Padding(0);
-            lblFourthFuelName.Name = "lblFourthFuelName";
-            lblFourthFuelName.Size = new Size(52, 21);
-            lblFourthFuelName.TabIndex = 14;
-            lblFourthFuelName.Text = "Fuel 4";
-            lblFourthFuelName.Visible = false;
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.BackColor = Color.Transparent;
-            label4.FlatStyle = FlatStyle.Flat;
-            label4.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label4.ForeColor = Color.FromArgb(0, 84, 166);
-            label4.Location = new Point(18, 336);
-            label4.Margin = new Padding(0);
-            label4.Name = "label4";
-            label4.Size = new Size(29, 21);
-            label4.TabIndex = 13;
-            label4.Text = "kg";
-            // 
-            // lblFourthFuelUsed
-            // 
-            lblFourthFuelUsed.AutoSize = true;
-            lblFourthFuelUsed.BackColor = Color.Transparent;
-            lblFourthFuelUsed.FlatStyle = FlatStyle.Flat;
-            lblFourthFuelUsed.Font = new Font("Segoe UI", 20.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblFourthFuelUsed.ForeColor = Color.FromArgb(0, 84, 166);
-            lblFourthFuelUsed.Location = new Point(14, 299);
-            lblFourthFuelUsed.Margin = new Padding(0);
-            lblFourthFuelUsed.Name = "lblFourthFuelUsed";
-            lblFourthFuelUsed.Size = new Size(56, 37);
-            lblFourthFuelUsed.TabIndex = 12;
-            lblFourthFuelUsed.Text = "0.0";
-            lblFourthFuelUsed.Visible = false;
             // 
             // FuelUsageView
             // 
@@ -362,9 +361,9 @@
             Load += FuelUsageView_Load;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)tableFuelFeedLog).EndInit();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)tableFuelFeedLog).EndInit();
             ResumeLayout(false);
         }
 
@@ -383,11 +382,11 @@
         private Label lblSecondFuelUsed;
         private Label lblFirstFuelName;
         private DateTimePicker dtpFuelFeedLog;
-        private Button btnAddFuelLog;
-        private DataGridView tableFuelFeedLog;
+        private Button btnRefreshLog;
         private Panel panel2;
         private Label lblFourthFuelName;
         private Label label4;
         private Label lblFourthFuelUsed;
+        private Zuby.ADGV.AdvancedDataGridView tableFuelFeedLog;
     }
 }

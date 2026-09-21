@@ -1,4 +1,5 @@
-﻿using SteamBoilerApp.ViewModels;
+﻿using SteamBoilerApp.Models;
+using SteamBoilerApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,9 @@ namespace SteamBoilerApp.MVP.Contracts
 {
     public interface IFuelUsageModel
     {
-        public Task<Dictionary<string, float>> GetTotalFuelForOrder(int orderId);
-        public Task<Dictionary<string, int>> GetFuelFeedLogByDayAsync(DateTime date);
-        public Task<List<FuelFeedSummary>> GetFuelFeedLogAllAsync(DateTime date);
+        Task<Dictionary<string, float>> GetTotalFuelForOrder(int orderId);
+        Task<Dictionary<string, int>> GetFuelFeedLogByDayAndTypeAsync(DateTime date);
+        Task<List<FuelFeedLog>> GetFuelFeedByDayAsync(DateTime date);
+        Task<DateTime> GetLatestFeedLogTimeAsync();
     }
 }

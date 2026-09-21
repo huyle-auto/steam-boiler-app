@@ -41,6 +41,9 @@ namespace SteamBoilerApp
             string json = File.ReadAllText("Configs/modbus_settings.json");
             var modbusConfig = JsonSerializer.Deserialize<ModbusDeviceConfig>(json);
 
+            string mqttJson = File.ReadAllText("Configs/mqtt_settings.json");
+            var mqttConfig = JsonSerializer.Deserialize<MqttConfig>(mqttJson);
+
             // CONTROL CONFIGURATION
             string pidJson = File.ReadAllText("Configs/control_config.json");
             var controlConfig = JsonSerializer.Deserialize<ControlConfig>(pidJson);
@@ -48,6 +51,7 @@ namespace SteamBoilerApp
             // SERVICE
             var toastService = new ToastNotificationService();
             var modbusService = new ModbusTCPService(modbusConfig ?? new ModbusDeviceConfig()); // Return empty config if deserialization fails to prevent crash
+            var mqttService = new MqttV311Service(mqttConfig ?? new MqttConfig());  // Return empty config if deserialization fails to prevent crash
             var dataExportService = new DataExportService();
             var dbHealthService = new DatabaseHealthService();
             var dataAcqService = new DataAcquisitionService();
@@ -65,7 +69,7 @@ namespace SteamBoilerApp
             // APP SETTING
             var appSettingView = new MVP.Views.AppSettingView();
             var appSettingModel = new MVP.Models.AppSettingModel(modbusService);
-            var appSettingPresenter = new MVP.Presenters.AppSettingPresenter(appSettingView, appSettingModel, modbusService, dbHealthService, dataAcqService, scheduleClientService, toastService);
+            var appSettingPresenter = new MVP.Presenters.AppSettingPresenter(appSettingView, appSettingModel, modbusService, dbHealthService, dataAcqService, scheduleClientService, toastService, mqttService);
 
             // OVERVIEW
             var overviewView = new OverviewView();

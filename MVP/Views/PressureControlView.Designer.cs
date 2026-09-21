@@ -35,7 +35,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PressureControlView));
             chartPressure = new System.Windows.Forms.DataVisualization.Charting.Chart();
             panelChart = new Panel();
-            lblStatus = new Label();
+            checkBoxAnnotation = new CheckBox();
+            txtStatus = new TextBox();
+            ledStatus = new TextBox();
             btnLiveData = new Button();
             dtpToDate = new DateTimePicker();
             lblTo = new Label();
@@ -107,6 +109,12 @@
             label26 = new Label();
             label22 = new Label();
             toolTipSwitchOption = new ToolTip(components);
+            pictureBoxAlarmOn = new PictureBox();
+            pictureBoxAlarmOff = new PictureBox();
+            panel4 = new Panel();
+            label30 = new Label();
+            btnToggleAlarm = new Button();
+            label25 = new Label();
             ((System.ComponentModel.ISupportInitialize)chartPressure).BeginInit();
             panelChart.SuspendLayout();
             panel2.SuspendLayout();
@@ -126,6 +134,9 @@
             panel3.SuspendLayout();
             panelPidOperation.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picBoxChangeOption).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAlarmOn).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAlarmOff).BeginInit();
+            panel4.SuspendLayout();
             SuspendLayout();
             // 
             // chartPressure
@@ -135,20 +146,22 @@
             chartPressure.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
             chartPressure.Legends.Add(legend1);
-            chartPressure.Location = new Point(0, 53);
+            chartPressure.Location = new Point(0, 38);
             chartPressure.Name = "chartPressure";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             chartPressure.Series.Add(series1);
-            chartPressure.Size = new Size(1049, 499);
+            chartPressure.Size = new Size(1049, 514);
             chartPressure.TabIndex = 0;
             chartPressure.Text = "chart1";
             // 
             // panelChart
             // 
             panelChart.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            panelChart.Controls.Add(lblStatus);
+            panelChart.Controls.Add(checkBoxAnnotation);
+            panelChart.Controls.Add(txtStatus);
+            panelChart.Controls.Add(ledStatus);
             panelChart.Controls.Add(btnLiveData);
             panelChart.Controls.Add(dtpToDate);
             panelChart.Controls.Add(lblTo);
@@ -161,20 +174,44 @@
             panelChart.Size = new Size(1049, 552);
             panelChart.TabIndex = 1;
             // 
-            // lblStatus
+            // checkBoxAnnotation
             // 
-            lblStatus.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lblStatus.AutoSize = true;
-            lblStatus.BackColor = Color.White;
-            lblStatus.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            lblStatus.ForeColor = Color.LimeGreen;
-            lblStatus.Location = new Point(0, 53);
-            lblStatus.Name = "lblStatus";
-            lblStatus.Padding = new Padding(3);
-            lblStatus.Size = new Size(150, 27);
-            lblStatus.TabIndex = 7;
-            lblStatus.Text = "* Refresh to update";
-            lblStatus.TextAlign = ContentAlignment.MiddleCenter;
+            checkBoxAnnotation.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            checkBoxAnnotation.AutoSize = true;
+            checkBoxAnnotation.BackColor = Color.White;
+            checkBoxAnnotation.Checked = true;
+            checkBoxAnnotation.CheckState = CheckState.Checked;
+            checkBoxAnnotation.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            checkBoxAnnotation.Location = new Point(9, 524);
+            checkBoxAnnotation.Name = "checkBoxAnnotation";
+            checkBoxAnnotation.Size = new Size(156, 25);
+            checkBoxAnnotation.TabIndex = 9;
+            checkBoxAnnotation.Text = "Show Annotations";
+            checkBoxAnnotation.UseVisualStyleBackColor = false;
+            checkBoxAnnotation.CheckedChanged += checkBoxAnnotation_CheckedChanged;
+            // 
+            // txtStatus
+            // 
+            txtStatus.BackColor = Color.White;
+            txtStatus.BorderStyle = BorderStyle.None;
+            txtStatus.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            txtStatus.Location = new Point(46, 52);
+            txtStatus.Name = "txtStatus";
+            txtStatus.ReadOnly = true;
+            txtStatus.Size = new Size(265, 22);
+            txtStatus.TabIndex = 8;
+            txtStatus.Text = "No live data";
+            // 
+            // ledStatus
+            // 
+            ledStatus.BackColor = Color.White;
+            ledStatus.BorderStyle = BorderStyle.FixedSingle;
+            ledStatus.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            ledStatus.Location = new Point(8, 47);
+            ledStatus.Name = "ledStatus";
+            ledStatus.ReadOnly = true;
+            ledStatus.Size = new Size(32, 32);
+            ledStatus.TabIndex = 7;
             // 
             // btnLiveData
             // 
@@ -308,9 +345,9 @@
             label1.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label1.Location = new Point(19, 113);
             label1.Name = "label1";
-            label1.Size = new Size(132, 21);
+            label1.Size = new Size(143, 21);
             label1.TabIndex = 46;
-            label1.Text = "Pressure Setpoint";
+            label1.Text = "Pressure Setpoint *";
             label1.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // panel1
@@ -933,9 +970,8 @@
             lblOperationPrompt.ForeColor = Color.FromArgb(64, 64, 64);
             lblOperationPrompt.Location = new Point(37, 132);
             lblOperationPrompt.Name = "lblOperationPrompt";
-            lblOperationPrompt.Size = new Size(80, 25);
+            lblOperationPrompt.Size = new Size(0, 25);
             lblOperationPrompt.TabIndex = 74;
-            lblOperationPrompt.Text = "Prompt";
             // 
             // btnAddFuelPid
             // 
@@ -958,9 +994,8 @@
             lblOperationEvidence.ForeColor = Color.DarkGray;
             lblOperationEvidence.Location = new Point(37, 174);
             lblOperationEvidence.Name = "lblOperationEvidence";
-            lblOperationEvidence.Size = new Size(71, 21);
+            lblOperationEvidence.Size = new Size(0, 21);
             lblOperationEvidence.TabIndex = 75;
-            lblOperationEvidence.Text = "Evidence";
             // 
             // lblOperationTitle
             // 
@@ -969,9 +1004,9 @@
             lblOperationTitle.ForeColor = Color.FromArgb(255, 128, 0);
             lblOperationTitle.Location = new Point(37, 88);
             lblOperationTitle.Name = "lblOperationTitle";
-            lblOperationTitle.Size = new Size(75, 32);
+            lblOperationTitle.Size = new Size(0, 32);
             lblOperationTitle.TabIndex = 73;
-            lblOperationTitle.Text = "TITLE";
+            lblOperationTitle.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // lblMajorCntdown
             // 
@@ -1028,10 +1063,87 @@
             label22.TabIndex = 39;
             label22.Text = "OPERATION";
             // 
+            // pictureBoxAlarmOn
+            // 
+            pictureBoxAlarmOn.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            pictureBoxAlarmOn.Image = (Image)resources.GetObject("pictureBoxAlarmOn.Image");
+            pictureBoxAlarmOn.Location = new Point(13, 68);
+            pictureBoxAlarmOn.Name = "pictureBoxAlarmOn";
+            pictureBoxAlarmOn.Size = new Size(152, 148);
+            pictureBoxAlarmOn.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxAlarmOn.TabIndex = 73;
+            pictureBoxAlarmOn.TabStop = false;
+            toolTipSwitchOption.SetToolTip(pictureBoxAlarmOn, "Click to change option");
+            // 
+            // pictureBoxAlarmOff
+            // 
+            pictureBoxAlarmOff.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            pictureBoxAlarmOff.Image = (Image)resources.GetObject("pictureBoxAlarmOff.Image");
+            pictureBoxAlarmOff.Location = new Point(13, 68);
+            pictureBoxAlarmOff.Name = "pictureBoxAlarmOff";
+            pictureBoxAlarmOff.Size = new Size(152, 148);
+            pictureBoxAlarmOff.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxAlarmOff.TabIndex = 74;
+            pictureBoxAlarmOff.TabStop = false;
+            toolTipSwitchOption.SetToolTip(pictureBoxAlarmOff, "Click to change option");
+            // 
+            // panel4
+            // 
+            panel4.BackColor = Color.White;
+            panel4.Controls.Add(label30);
+            panel4.Controls.Add(btnToggleAlarm);
+            panel4.Controls.Add(pictureBoxAlarmOn);
+            panel4.Controls.Add(pictureBoxAlarmOff);
+            panel4.Controls.Add(label25);
+            panel4.Location = new Point(691, 602);
+            panel4.Name = "panel4";
+            panel4.Size = new Size(385, 272);
+            panel4.TabIndex = 49;
+            // 
+            // label30
+            // 
+            label30.AutoSize = true;
+            label30.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label30.ForeColor = Color.FromArgb(0, 84, 166);
+            label30.Location = new Point(13, 33);
+            label30.Name = "label30";
+            label30.Size = new Size(169, 19);
+            label30.TabIndex = 76;
+            label30.Text = "Click to ON/OFF ALARM";
+            // 
+            // btnToggleAlarm
+            // 
+            btnToggleAlarm.Anchor = AnchorStyles.Right;
+            btnToggleAlarm.AutoSize = true;
+            btnToggleAlarm.BackColor = Color.Red;
+            btnToggleAlarm.FlatAppearance.BorderSize = 0;
+            btnToggleAlarm.FlatStyle = FlatStyle.Flat;
+            btnToggleAlarm.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnToggleAlarm.ForeColor = Color.White;
+            btnToggleAlarm.Location = new Point(240, 122);
+            btnToggleAlarm.Name = "btnToggleAlarm";
+            btnToggleAlarm.Size = new Size(104, 35);
+            btnToggleAlarm.TabIndex = 75;
+            btnToggleAlarm.Text = "ON";
+            btnToggleAlarm.UseVisualStyleBackColor = false;
+            btnToggleAlarm.Click += btnToggleAlarm_Click;
+            // 
+            // label25
+            // 
+            label25.AutoSize = true;
+            label25.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label25.ForeColor = Color.Red;
+            label25.Location = new Point(13, 12);
+            label25.Name = "label25";
+            label25.Size = new Size(65, 21);
+            label25.TabIndex = 40;
+            label25.Text = "ALARM";
+            // 
             // PressureControlView
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(panel4);
             Controls.Add(panelPidOperation);
             Controls.Add(panelAutoTuning);
             Controls.Add(panel1);
@@ -1065,6 +1177,10 @@
             panelPidOperation.ResumeLayout(false);
             panelPidOperation.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)picBoxChangeOption).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAlarmOn).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAlarmOff).EndInit();
+            panel4.ResumeLayout(false);
+            panel4.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -1078,7 +1194,6 @@
         private DateTimePicker dtpToDate;
         private Label lblTo;
         private Button btnLiveData;
-        private Label lblStatus;
         private Panel panel2;
         private PictureBox pictureBox1;
         private Button btnBrowseFolder;
@@ -1144,5 +1259,14 @@
         private Button btnAddFuelPid;
         private PictureBox picBoxChangeOption;
         private ToolTip toolTipSwitchOption;
+        private TextBox ledStatus;
+        private TextBox txtStatus;
+        private Panel panel4;
+        private Label label25;
+        private Button btnToggleAlarm;
+        private PictureBox pictureBoxAlarmOn;
+        private PictureBox pictureBoxAlarmOff;
+        private Label label30;
+        private CheckBox checkBoxAnnotation;
     }
 }

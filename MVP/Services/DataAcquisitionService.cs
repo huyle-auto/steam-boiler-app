@@ -70,7 +70,7 @@ namespace SteamBoilerApp.MVP.Services
                     .Where(x =>
                         x.SensorId == sensorId &&
                         x.Timestamp > after)
-                    .OrderBy(x => x.Timestamp)
+                    .OrderByDescending(x => x.Timestamp)
                     .FirstOrDefaultAsync();
             }
             catch (Exception ex)

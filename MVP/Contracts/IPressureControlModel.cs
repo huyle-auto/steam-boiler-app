@@ -23,6 +23,7 @@ namespace SteamBoilerApp.MVP.Contracts
         void InjectEnergy(double energyMJ);
 
         Task<FuelFeedLog?> GetLatestFeedLogAsync();
+        Task<List<FuelFeedLog>?> GetFeedLogByTimeRangeAsync(DateTime from, DateTime to);
 
         // ENERGY -> KG FUEL CONVERSION
         Task<Dictionary<string, double>> CalculateEquivalentFuelKgAsync(double energyCorrectionMJ);

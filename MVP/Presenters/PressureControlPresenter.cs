@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.Drawing.Charts;
-using NModbus.Device;
-using SteamBoilerApp.ChildMVP.Models;
+﻿using SteamBoilerApp.ChildMVP.Models;
 using SteamBoilerApp.ChildMVP.Presenters;
 using SteamBoilerApp.ChildMVP.Views;
 using SteamBoilerApp.Configs;
@@ -8,13 +6,7 @@ using SteamBoilerApp.Models;
 using SteamBoilerApp.MVP.Contracts;
 using SteamBoilerApp.MVP.Services;
 using SteamBoilerApp.Utils;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SteamBoilerApp.MVP.Presenters
 {
@@ -49,6 +41,12 @@ namespace SteamBoilerApp.MVP.Presenters
         private DateTime _nextAdvisoryDue = DateTime.MinValue;
         private DateTime _nextCommitDue = DateTime.MinValue;
 
+        // PRODUCTION STATE FOR ALARM GUARD
+        private DateTime? _productionEntryStart;
+        private DateTime? _productionExitStart;
+
+        private bool _isProduction = false;
+
         public PressureControlPresenter(IPressureControlView view, IPressureControlModel model, IDataAcquisitionService dataAcqService, IDatabaseHealthService dbHealthService, IDataExportService dataExportService, IScheduleClientService scheduleClientService, IModbusTCPService modbusService, IPidAutoTuner tuner, ControlConfig controlConfig)
         {
             this._view = view;
@@ -63,6 +61,7 @@ namespace SteamBoilerApp.MVP.Presenters
             this._view.ApplyParamClicked += OnApplyParamClicked;
             this._view.CancelAutoTuneClicked += OnCancelAutoTuneClicked;
             this._view.AddFuelClicked += OnAddFuelClicked;
+            this._view.ToggleAlarmClicked += OnToggleAlarmClicked;
 
             this._dataAcqService = dataAcqService;
             this._dbHealthService = dbHealthService;
@@ -98,7 +97,7 @@ namespace SteamBoilerApp.MVP.Presenters
                 Timeout.Infinite
             );
 
-            PID_TICK_TIME = _controlConfig.AdvisoryWindowMinutes * 60 * 1000;
+            PID_TICK_TIME = (int)(_controlConfig.AdvisoryWindowSeconds * 1000) ;
             _pidTimer.Change(0, PID_TICK_TIME);
 
             this._calcCountdownTimer = new System.Windows.Forms.Timer
@@ -110,15 +109,35 @@ namespace SteamBoilerApp.MVP.Presenters
             this._calcCountdownTimer.Start();
         }
 
+        private void OnToggleAlarmClicked(object? sender, EventArgs e)
+        {
+            if (!_modbusService.IsConnected)
+            {
+                MessageBox.Show("Please connect Data Logger first.", "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            _view.UpdateAlarmState();
+
+            if (!_view.IsAlarmEnabled)
+            {
+                _isProduction = false;
+            }
+            else
+            {
+                // Do not set _isProduction = true here, let detection decide
+                _productionEntryStart = DateTime.Now;
+            }
+        }
+
         private void InitCalcCheckpoint()
         {
             var now = DateTime.Now;
 
-            lock (_timeLocker)
-            {
-                _nextAdvisoryDue = now.AddMinutes(_controlConfig.AdvisoryWindowMinutes);
-                _nextCommitDue = now.AddMinutes(_controlConfig.CommitWindowMinutes);
-            }
+            _nextAdvisoryDue = now.AddSeconds(_controlConfig.AdvisoryWindowSeconds);
+            _nextCommitDue = now.AddSeconds(_controlConfig.CommitWindowSeconds);
+
+            _view.UpdateCountdowns(_nextAdvisoryDue - now, _nextCommitDue - now);
         }
 
         private void OnModbusConnected(object? sender, EventArgs e)
@@ -128,6 +147,7 @@ namespace SteamBoilerApp.MVP.Presenters
                 InitCalcCheckpoint();
 
                 _pidTimer.Change(0, PID_TICK_TIME);
+                _calcCountdownTimer.Stop();
                 _calcCountdownTimer.Start();
             }
         }
@@ -155,18 +175,21 @@ namespace SteamBoilerApp.MVP.Presenters
                 advisoryRemaining = TimeSpan.Zero;
             }
 
-            if (commitRemaining <TimeSpan.Zero)
+            if (commitRemaining < TimeSpan.Zero)
             {
                 commitRemaining = TimeSpan.Zero;
             }
 
             //// Freeze advisory countdown last cycle before commit due
-            if (commitRemaining <= TimeSpan.FromMinutes(_controlConfig.AdvisoryWindowMinutes))
+            if (commitRemaining <= TimeSpan.FromSeconds(_controlConfig.AdvisoryWindowSeconds))
             {
                 advisoryRemaining = TimeSpan.Zero;
             }
 
             _view.UpdateCountdowns(advisoryRemaining, commitRemaining);
+
+            //Debug.WriteLine("advisory remaining: " + advisoryRemaining.TotalSeconds + " seconds");
+            //Debug.WriteLine("commit remaining: " + commitRemaining.TotalSeconds + " seconds");
         }
 
         private async Task PidCalcAsync()
@@ -178,21 +201,21 @@ namespace SteamBoilerApp.MVP.Presenters
 
             var now = DateTime.Now;
 
-            var advisoryWindowMinutes = _controlConfig.AdvisoryWindowMinutes;
-            var commitWindowMinutes = _controlConfig.CommitWindowMinutes;
+            var advisoryWindowSeconds = _controlConfig.AdvisoryWindowSeconds;
+            var commitWindowSeconds = _controlConfig.CommitWindowSeconds;
 
-            bool advisoryDue = now >= _nextAdvisoryDue.AddSeconds(-2);
-            bool commitDue = now >= _nextCommitDue.AddSeconds(-2);
+            bool advisoryDue = now >= _nextAdvisoryDue.AddSeconds(-1/12);
+            bool commitDue = now >= _nextCommitDue.AddSeconds(-1/12);
 
-            Debug.WriteLine("advisoryDue is: " + advisoryDue);
-            Debug.WriteLine("commitDue is: " + commitDue);
+            //Debug.WriteLine("advisoryDue is: " + advisoryDue);
+            //Debug.WriteLine("commitDue is: " + commitDue);
 
             try
             {
                 if (commitDue)
                 {
-                    var averagePV = await _model.GetAveragePVAsync(from: DateTime.Now.AddMinutes(-commitWindowMinutes), DateTime.Now);
-                    var energyMJ = _model.ComputePiOutput(setpoint: _view.PressureSetpoint, averagePV, deltaTimeSeconds: commitWindowMinutes * 60);
+                    var averagePV = await _model.GetAveragePVAsync(from: DateTime.Now.AddSeconds(-commitWindowSeconds), DateTime.Now);
+                    var energyMJ = _model.ComputePiOutput(setpoint: _view.PressureSetpoint, averagePV, deltaTimeSeconds: commitWindowSeconds);
 
                     if (energyMJ > 0)
                     {
@@ -206,16 +229,16 @@ namespace SteamBoilerApp.MVP.Presenters
 
                     lock (_timeLocker)
                     {
-                        _nextCommitDue = now.AddMinutes(_controlConfig.CommitWindowMinutes);
-                        _nextAdvisoryDue = now.AddMinutes(_controlConfig.AdvisoryWindowMinutes);
+                        _nextCommitDue = now.AddSeconds(_controlConfig.CommitWindowSeconds);
+                        _nextAdvisoryDue = now.AddSeconds(_controlConfig.AdvisoryWindowSeconds);
                     }
 
-                    Debug.WriteLine("Last commit time: " + now);
+                    //Debug.WriteLine("Last commit time: " + now);
                 }
                 else if (advisoryDue)
                 {
-                    var averagePV = await _model.GetAveragePVAsync(from: DateTime.Now.AddMinutes(-advisoryWindowMinutes), DateTime.Now);
-                    var energyMJ = _model.ComputePOutput(setpoint: _view.PressureSetpoint, averagePV, deltaTimeSeconds: advisoryWindowMinutes * 60);
+                    var averagePV = await _model.GetAveragePVAsync(from: DateTime.Now.AddSeconds(-_controlConfig.AdvisoryWindowSeconds), DateTime.Now);
+                    var energyMJ = _model.ComputePOutput(setpoint: _view.PressureSetpoint, averagePV, deltaTimeSeconds: _controlConfig.AdvisoryWindowSeconds);
 
                     if (energyMJ > 0)
                     {
@@ -227,12 +250,12 @@ namespace SteamBoilerApp.MVP.Presenters
                         _view.EvaluatePressureState(averagePV, []);
                     }
 
-                    lock(_timeLocker)
+                    lock (_timeLocker)
                     {
-                        _nextAdvisoryDue = now.AddMinutes(_controlConfig.AdvisoryWindowMinutes);
+                        _nextAdvisoryDue = now.AddSeconds(_controlConfig.AdvisoryWindowSeconds);
                     }
 
-                    Debug.WriteLine("Last advisory time: " + now);
+                    //Debug.WriteLine("Last advisory time: " + now);
                 }
             }
             catch (Exception ex)
@@ -460,7 +483,9 @@ namespace SteamBoilerApp.MVP.Presenters
 
             if (_modbusService.IsConnected)
             {
+                InitCalcCheckpoint();
                 _pidTimer.Change(0, PID_TICK_TIME);
+                _calcCountdownTimer.Stop();
                 _calcCountdownTimer.Start();
             }
         }
@@ -485,20 +510,27 @@ namespace SteamBoilerApp.MVP.Presenters
             {
                 var data = await _dataAcqService.GetSensorDataAsync(sensorId: 1, fromDate: _view.FromDate, ToDate: _view.ToDate);
 
+                // Add data points
                 if (true)
                 {
                     _view.LoadInitialData(data);
                     _lastTimestamp = _view.ToDate;
-                    //Debug.WriteLine("Refresh timestamp: " + _lastTimestamp.ToString("o"));
                 }
+
 
                 if (_view.IsLiveData)
                 {
                     StartPolling();
+
+                    // Clear annotations in Live Data
+                    _view.ClearAnnotations();
                 }
                 else
                 {
                     StopPolling();
+
+                    // Add annotations on Refresh
+                    await LoadFeedAnnotations(from: _view.FromDate, to: _view.ToDate);
                 }
             }
             catch (Exception ex)
@@ -518,6 +550,8 @@ namespace SteamBoilerApp.MVP.Presenters
             _polling = true;
             try
             {
+                var sw = Stopwatch.StartNew();
+
                 var latest = await _dataAcqService.GetSensorLatestValueAsync(sensorId: 1, _lastTimestamp);
 
                 if (latest == null)
@@ -525,9 +559,120 @@ namespace SteamBoilerApp.MVP.Presenters
                     return;
                 }
 
+                sw.Stop();
+                // Debug.WriteLine("PollLatestAsync latency: " + sw.ElapsedMilliseconds + " ms");
+
+                // Draw chart
                 _lastTimestamp = latest.Timestamp;
                 _view.AppendSensorPoint(latest.Timestamp, Convert.ToDouble(latest.EngineeringValue));
 
+                // ----------------------------------------------------------------------
+                // -------------------- FLASHING LED & PROCESS ALARM --------------------
+                // ----------------------------------------------------------------------
+                var pressure = Convert.ToDouble(latest.EngineeringValue);
+
+                // PRODUCTION ENTRY / EXIT DETECTION
+                var now = DateTime.Now;
+
+                if (pressure > _controlConfig.MinProductionPressure)
+                {
+                    _productionExitStart = null;
+
+                    if (_productionEntryStart == null)
+                    {
+                        _productionEntryStart = now;
+                    }
+
+                    if ((now - _productionEntryStart.Value).TotalSeconds >= 30) // 30 seconds in production range, PRODUCTION confirmed
+                    {
+                        _isProduction = true;
+                    }
+                }
+                else
+                {
+                    _productionEntryStart = null;
+
+                    if (_productionExitStart == null)
+                    {
+                        _productionExitStart = now;
+                    }
+                    if ((now - _productionExitStart.Value).TotalSeconds >= 60) // 60 seconds out of production range, EXIT PRODUCTION confirmed
+                    {
+                        _isProduction = false;
+                    }
+                }
+
+                // ALARMING
+                if (!_view.IsAlarmEnabled)
+                {
+                    await _modbusService.WriteAllDigitalOutputsAsync([false, false, false, false]);
+
+                    _view.FlashingStatusLED(Color.White);
+                    _view.SetStatusText("Alarm OFF");
+
+                    return; // Reset all alarm if toggled off
+                }
+
+                if (_modbusService.IsConnected && !_isProduction)
+                {
+                    await _modbusService.WriteAllDigitalOutputsAsync([false, false, false, false]);
+                    return; // Reset all alarm if not in production
+                }
+
+                if (pressure >= _controlConfig.PressureHighHighLimit)   // HIGH HIGH
+                {
+                    _view.FlashingStatusLED(Color.Red);
+                    _view.SetStatusText("Attention. Pressure VERY HIGH !");
+
+                    if (_modbusService.IsConnected & _isProduction)
+                    {
+                        await _modbusService.WriteAllDigitalOutputsAsync([true, false, false, false]);
+                    }
+                }
+
+                else if (pressure >= _controlConfig.PressureHighLimit)   // HIGH
+                {
+                    _view.FlashingStatusLED(Color.Yellow);
+                    _view.SetStatusText("Pressure HIGH !");
+
+                    if (_modbusService.IsConnected & _isProduction)
+                    {
+                        await _modbusService.WriteAllDigitalOutputsAsync([true, false, false, false]);
+                    }
+                }
+
+                else if (pressure < _controlConfig.PressureLowLowLimit)    // LOW LOW
+                {
+                    _view.FlashingStatusLED(Color.Red);
+                    _view.SetStatusText("Attention. Pressure VERY LOW !");
+
+                    if (_modbusService.IsConnected & _isProduction)
+                    {
+                        await _modbusService.WriteAllDigitalOutputsAsync([true, false, false, false]);
+                    }
+                }
+
+                else if (pressure < _controlConfig.PressureLowLimit)    // LOW
+                {
+                    _view.FlashingStatusLED(Color.Yellow);
+                    _view.SetStatusText("Pressure LOW !");
+
+                    if (_modbusService.IsConnected & _isProduction)
+                    {
+                        await _modbusService.WriteAllDigitalOutputsAsync([true, false, false, false]);
+                    }
+                }
+
+                else // NORMAL
+                {
+                    _view.FlashingStatusLED(Color.LimeGreen);
+                    _view.SetStatusText("Pressure GOOD");
+
+                    if (_modbusService.IsConnected & _isProduction)
+                    {
+                        await _modbusService.WriteAllDigitalOutputsAsync([false, false, false, false]);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -552,6 +697,27 @@ namespace SteamBoilerApp.MVP.Presenters
             _chartTimer.Tick -= PollLatestAsync;
 
             _chartTimer.Stop();
+        }
+
+        public async Task LoadFeedAnnotations(DateTime from, DateTime to)
+        {
+            var logs = await _model.GetFeedLogByTimeRangeAsync(from, to);
+
+            if (logs == null)
+            {
+                return;
+            }
+
+            // Clear all existing annotations 
+            _view.ClearAnnotations();
+
+            foreach (var log in logs)
+            {
+                _view.AddFeedAnnotation(
+                    log.Timestamp,
+                    $"{log.Timestamp.ToString("HH:mm:ss")}\n{log.FuelType.FuelName}: {log.FuelMass:0.#} {log.Unit.Symbol}"
+                );
+            }
         }
 
         private async void OnExportClicked(object? sender, EventArgs e)

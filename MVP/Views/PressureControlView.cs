@@ -1,16 +1,9 @@
-﻿//using LiveChartsCore;
-//using LiveChartsCore.SkiaSharpView;
-//using LiveChartsCore.SkiaSharpView.WinForms;
-//using LiveChartsCore.SkiaSharpView.Painting;
-//using SkiaSharp;
-using DocumentFormat.OpenXml.InkML;
-using Microsoft.Identity.Client;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
 using SteamBoilerApp.Models;
 using SteamBoilerApp.MVP.Contracts;
-using SteamBoilerApp.MVP.Controls;
-using System.Diagnostics;
-using System.Security.Policy;
+using SteamBoilerApp.Utils;
 using System.Windows.Forms.DataVisualization.Charting;
+using Color = System.Drawing.Color;
 
 namespace SteamBoilerApp.MVP.Views
 {
@@ -29,6 +22,7 @@ namespace SteamBoilerApp.MVP.Views
         public event EventHandler? ApplyParamClicked;
         public event EventHandler? CancelAutoTuneClicked;
         public event EventHandler<string>? AddFuelClicked;
+        public event EventHandler ToggleAlarmClicked;
         public bool IsLiveData { get; set; } = false;
 
         public string ExportFullPath { get; set; }
@@ -44,6 +38,13 @@ namespace SteamBoilerApp.MVP.Views
 
         private List<KeyValuePair<string, double>> _fuelOptions = new();
         private int _fuelIndex = 0;
+
+        // Status LED
+        private Color _ledColor = Color.White;
+        private bool _isLedOn = false;
+
+        // Alarm state
+        public bool IsAlarmEnabled { get; set; } = true;
 
         public enum PressureState
         {
@@ -111,6 +112,33 @@ namespace SteamBoilerApp.MVP.Views
                     area.AxisY.ScaleView.ZoomReset();
                 }
             };
+
+            // --------------------------- ALARMING LINES ------------------------------
+            var stripLow = new StripLine();
+            var stripHigh = new StripLine();
+
+            // Common style
+            var stripWidth = 0;
+            var borderWidth = 1;
+            var borderDashStyle = ChartDashStyle.Dash;
+
+            // LOW
+            stripLow.IntervalOffset = 6.8;
+            stripLow.StripWidth = stripWidth;
+            stripLow.BorderWidth = borderWidth;
+            stripLow.BorderColor = Color.Orange;
+            stripLow.BorderDashStyle = borderDashStyle;
+
+            // HIGH
+            stripHigh.IntervalOffset = 9.4;
+            stripHigh.StripWidth = stripWidth;
+            stripHigh.BorderWidth = borderWidth;
+            stripHigh.BorderColor = Color.Red;
+            stripHigh.BorderDashStyle = borderDashStyle;
+
+            area.AxisY.StripLines.Add(stripLow);
+            area.AxisY.StripLines.Add(stripHigh);
+
         }
 
         private void SetupChartContent()
@@ -238,6 +266,32 @@ namespace SteamBoilerApp.MVP.Views
                 series.Points.RemoveAt(0);
 
             chartPressure.Invalidate();
+        }
+
+        public void SetStatusText(string status)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(() => SetStatusText(status)));
+                return;
+            }
+
+            txtStatus.Text = status;
+        }
+
+        public void FlashingStatusLED(Color color)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(() => FlashingStatusLED(color)));
+                return;
+            }
+
+            _ledColor = color;
+
+            _isLedOn = !_isLedOn;
+
+            ledStatus.BackColor = _isLedOn ? _ledColor : Color.White;
         }
 
         private void AdjustXAxisInterval(Chart chart)
@@ -571,7 +625,7 @@ namespace SteamBoilerApp.MVP.Views
                 return;
             }
 
-            _fuelOptions = fuelOptions.ToList();
+            _fuelOptions = fuelOptions.OrderBy(x => x.Key).ToList();
             _fuelIndex = 0;
 
             string title = "";
@@ -584,31 +638,43 @@ namespace SteamBoilerApp.MVP.Views
                     title = "Pressure Stable";
                     prompt = "Please wait.";
                     evidence = "";
+
+                    FileLogger.Log($"Setpoint: {numPressureSetpoint.Value}. Pressure Stable. Please wait", "prompt.txt");
                     break;
                 case PressureState.SlightlyLow:
                     title = "Pressure slightly low";
                     prompt = BuildFuelPrompt();
                     evidence = "";
+
+                    FileLogger.Log($"Setpoint: {numPressureSetpoint.Value}. Pressure slightly low. {BuildFuelPrompt()}", "prompt.txt");
                     break;
                 case PressureState.Low:
                     title = "Pressure LOW";
                     prompt = BuildFuelPrompt();
                     evidence = "";
+
+                    FileLogger.Log($"Setpoint: {numPressureSetpoint.Value}. Pressure LOW. {BuildFuelPrompt()}", "prompt.txt");
                     break;
                 case PressureState.SlightlyHigh:
                     title = "Pressure slightly high";
                     prompt = "Please wait.";
                     evidence = "";
+
+                    FileLogger.Log($"Setpoint: {numPressureSetpoint.Value}. Pressure slightly high. Please wait", "prompt.txt");
                     break;
                 case PressureState.High:
                     title = "Pressure HIGH";
-                    prompt = "DO NOT feel fuel.";
+                    prompt = "DO NOT feed fuel.";
                     evidence = "";
+
+                    FileLogger.Log($"Setpoint: {numPressureSetpoint.Value}. Pressure HIGH. DO NOT feed fuel", "prompt.txt");
                     break;
                 case PressureState.WaitingForResponse:
                     title = "Waiting for pressure response...";
                     prompt = "Please wait.";
                     evidence = "";
+
+                    FileLogger.Log($"Waiting for pressure response... Please wait", "prompt.txt");
                     break;
                 default:
                     break;
@@ -629,7 +695,6 @@ namespace SteamBoilerApp.MVP.Views
             KeyValuePair<string, double> fuel = _fuelOptions.ToList()[_fuelIndex];
             return $"If you feed now: ~{fuel.Value} kg {fuel.Key}";
         }
-
 
         public void ShowMessageOnFuelInjected()
         {
@@ -673,6 +738,118 @@ namespace SteamBoilerApp.MVP.Views
 
             _fuelIndex = (_fuelIndex + 1) % _fuelOptions.Count;
             lblOperationPrompt.Text = BuildFuelPrompt();
+        }
+
+        private void btnToggleAlarm_Click(object sender, EventArgs e)
+        {
+            ToggleAlarmClicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void UpdateAlarmState()
+        {
+            IsAlarmEnabled = !IsAlarmEnabled;
+
+            btnToggleAlarm.Text = IsAlarmEnabled ? "ON" : "OFF";
+            btnToggleAlarm.BackColor = IsAlarmEnabled ? Color.Red : Color.Gray;
+            btnToggleAlarm.ForeColor = IsAlarmEnabled ? Color.White : Color.Black;
+
+            pictureBoxAlarmOn.Visible = IsAlarmEnabled;
+            pictureBoxAlarmOff.Visible = !IsAlarmEnabled;
+        }
+
+        public void AddFeedAnnotation(DateTime timestamp, string text)
+        {
+            var chart = chartPressure;
+
+            var point = GetNearestPoint(timestamp);
+
+            double y;
+
+            if (point != null)
+            {
+                y = point.YValues[0];
+
+                // Highlight point
+                point.MarkerStyle = MarkerStyle.Circle;
+                point.MarkerSize = 8;
+                point.MarkerColor = Color.Coral;
+            }
+            else
+            {
+                y = chart.ChartAreas[0].AxisY.Maximum * 0.95;
+            }
+
+            var annotation = new RectangleAnnotation
+            {
+                Text = text,
+                BackColor = Color.White,
+                ForeColor = Color.Black,
+                LineColor = Color.LightGray,
+                LineWidth = 1,
+                Font = new Font("Segoe UI", 10),
+                AnchorAlignment = ContentAlignment.BottomCenter,
+                AnchorOffsetY = -10,
+                AllowMoving = true
+            };
+
+            annotation.AxisX = chart.ChartAreas[0].AxisX;
+            annotation.AxisY = chart.ChartAreas[0].AxisY;
+
+            annotation.AnchorX = timestamp.ToOADate();
+            annotation.AnchorY = y;
+
+            chart.Annotations.Add(annotation);
+
+            // Set visibility based on current checkbox
+            annotation.Visible = checkBoxAnnotation.Checked;
+        }
+
+        private DataPoint? GetNearestPoint(DateTime timestamp)
+        {
+            var series = chartPressure.Series[0];
+
+            if (series.Points.Count == 0)
+                return null;
+
+            double targetX = timestamp.ToOADate();
+
+            DataPoint? closest = null;
+            double minDiff = double.MaxValue;
+
+            foreach (var p in series.Points)
+            {
+                double diff = Math.Abs(p.XValue - targetX);
+                if (diff < minDiff)
+                {
+                    minDiff = diff;
+                    closest = p;
+                }
+            }
+
+            return closest;
+        }
+
+        public void ClearAnnotations()
+        {
+            chartPressure.Annotations.Clear();
+
+            // Clear markers
+            var series = chartPressure.Series[0];
+
+            foreach (var p in series.Points)
+            {
+                p.MarkerStyle = MarkerStyle.None;
+            }
+        }
+
+        private void checkBoxAnnotation_CheckedChanged(object sender, EventArgs e)
+        {
+            foreach(var annotation in chartPressure.Annotations)
+            {
+                annotation.Visible = checkBoxAnnotation.Checked;
+            }
+
+            chartPressure.Invalidate();
         }
     }
 }

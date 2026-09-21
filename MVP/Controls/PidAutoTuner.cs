@@ -41,6 +41,8 @@ namespace SteamBoilerApp.MVP.Controls
         public PidAutoTuner() { }
 
         // ----------------------------------------------------
+        // ------------------- FOPDT tuning -------------------
+        // ----------------------------------------------------
 
         public void Start(double currentPressure)
         {

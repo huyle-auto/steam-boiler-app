@@ -200,7 +200,7 @@ namespace SteamBoilerApp.MVP.Services
             return true;
         }
 
-        public double ReadAnalogInput(string tag)
+        public double ReadAnalogInput(string tag)   // Unused, but can be used for single value read if needed
         {
             try
             {
@@ -227,6 +227,7 @@ namespace SteamBoilerApp.MVP.Services
                 throw new Exception($"Cannot read {tag}: " + ex.Message);
             }
         }
+
         public IReadOnlyList<SensorDatum> ExtractSensorValues(ModbusSnapshot snapshot)
         {
             try
@@ -309,6 +310,32 @@ namespace SteamBoilerApp.MVP.Services
             {
                 Debug.WriteLine("Cannot read MODBUS BLOCKS: " + ex.Message);
                 throw new Exception("Cannot read MODBUS BLOCKS: " + ex.Message);
+            }
+        }
+
+        public async Task WriteAllDigitalOutputsAsync(bool[] states)
+        {
+            try
+            {
+                await _master!.WriteMultipleCoilsAsync(_modbusConfig.SlaveId, 0, states);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Cannot write all DOs: " + ex.Message);
+                throw new Exception("Cannot write all DOs: " + ex.Message);
+            }
+        }
+
+        public async Task WriteDigitalOutputAsync(ushort pin, bool state)
+        {
+            try
+            {
+                await _master!.WriteSingleCoilAsync(_modbusConfig.SlaveId, pin, state);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Cannot write DO: " + ex.Message);
+                throw new Exception("Cannot write DO: " + ex.Message);
             }
         }
 

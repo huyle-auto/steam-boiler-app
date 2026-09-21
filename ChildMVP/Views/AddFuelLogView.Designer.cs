@@ -70,7 +70,7 @@
             cboFuelType.FormattingEnabled = true;
             cboFuelType.Location = new Point(120, 20);
             cboFuelType.Name = "cboFuelType";
-            cboFuelType.Size = new Size(127, 29);
+            cboFuelType.Size = new Size(200, 29);
             cboFuelType.TabIndex = 2;
             // 
             // label5
@@ -147,7 +147,7 @@
             numFuelMass.Location = new Point(121, 72);
             numFuelMass.Maximum = new decimal(new int[] { 25000, 0, 0, 0 });
             numFuelMass.Name = "numFuelMass";
-            numFuelMass.Size = new Size(126, 29);
+            numFuelMass.Size = new Size(109, 29);
             numFuelMass.TabIndex = 5;
             numFuelMass.TextAlign = HorizontalAlignment.Center;
             // 

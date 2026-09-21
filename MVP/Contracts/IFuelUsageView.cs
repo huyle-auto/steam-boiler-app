@@ -1,4 +1,5 @@
-﻿using SteamBoilerApp.ViewModels;
+﻿using SteamBoilerApp.Models;
+using SteamBoilerApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,15 +10,17 @@ namespace SteamBoilerApp.MVP.Contracts
 {
     public interface IFuelUsageView
     {
-        public DateTime FuelUseDay { get; }
-        public DateTime FuelFeedLogDate { get; }
+        DateTime FuelUseDay { get; }
+        DateTime FuelFeedLogDate { get; }
 
-        public event EventHandler OnViewLoad;
-        public event EventHandler OnFuelUseDayChanged;
-        public event EventHandler OnFuelFeedDayChanged;
-        public event EventHandler OnAddNewLogClicked;
+        event EventHandler OnViewLoad;
+        event EventHandler OnFuelUseDayChanged;
+        event EventHandler OnFuelFeedDayChanged;
+        event EventHandler OnRefreshAllLogClicked;
 
-        public void ShowFuelUsageByType(Dictionary<string, int> data);
-        public void ShowFuelFeedLog(List<FuelFeedSummary> data);
+        void ShowFuelUsageByType(Dictionary<string, int> data);
+        void LoadFuelFeedLog(List<FuelFeedLog> data);
+        void RefreshAllFuelLog(List<FuelFeedLog> data);
+        void RefreshFuelLogKeepFilter(List<FuelFeedLog> data);
     }
 }

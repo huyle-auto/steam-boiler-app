@@ -40,7 +40,6 @@
             btnChart = new Button();
             panelChartSubMenu = new FlowLayoutPanel();
             btnFuelUseChart = new Button();
-            btnSteamUseChart = new Button();
             btnPressureControlChart = new Button();
             btnUser = new Button();
             panelUserSubMenu = new FlowLayoutPanel();
@@ -80,6 +79,7 @@
             // 
             resources.ApplyResources(btnOverview, "btnOverview");
             btnOverview.FlatAppearance.BorderSize = 0;
+            btnOverview.FlatAppearance.MouseOverBackColor = Color.FromArgb(121, 146, 200);
             btnOverview.ForeColor = Color.White;
             btnOverview.Name = "btnOverview";
             btnOverview.UseVisualStyleBackColor = true;
@@ -90,6 +90,7 @@
             btnProductionData.BackColor = Color.FromArgb(76, 110, 181);
             resources.ApplyResources(btnProductionData, "btnProductionData");
             btnProductionData.FlatAppearance.BorderSize = 0;
+            btnProductionData.FlatAppearance.MouseOverBackColor = Color.FromArgb(121, 146, 200);
             btnProductionData.ForeColor = Color.White;
             btnProductionData.Name = "btnProductionData";
             btnProductionData.UseVisualStyleBackColor = false;
@@ -136,6 +137,7 @@
             // 
             btnChart.BackColor = Color.FromArgb(76, 110, 181);
             btnChart.FlatAppearance.BorderSize = 0;
+            btnChart.FlatAppearance.MouseOverBackColor = Color.FromArgb(121, 146, 200);
             resources.ApplyResources(btnChart, "btnChart");
             btnChart.ForeColor = Color.White;
             btnChart.Name = "btnChart";
@@ -144,10 +146,9 @@
             // 
             // panelChartSubMenu
             // 
-            panelChartSubMenu.Controls.Add(btnFuelUseChart);
-            panelChartSubMenu.Controls.Add(btnSteamUseChart);
-            panelChartSubMenu.Controls.Add(btnPressureControlChart);
             resources.ApplyResources(panelChartSubMenu, "panelChartSubMenu");
+            panelChartSubMenu.Controls.Add(btnFuelUseChart);
+            panelChartSubMenu.Controls.Add(btnPressureControlChart);
             panelChartSubMenu.Name = "panelChartSubMenu";
             // 
             // btnFuelUseChart
@@ -159,15 +160,6 @@
             btnFuelUseChart.Name = "btnFuelUseChart";
             btnFuelUseChart.UseVisualStyleBackColor = false;
             btnFuelUseChart.Click += btnFuelUseChart_Click;
-            // 
-            // btnSteamUseChart
-            // 
-            btnSteamUseChart.BackColor = Color.FromArgb(126, 162, 212);
-            resources.ApplyResources(btnSteamUseChart, "btnSteamUseChart");
-            btnSteamUseChart.FlatAppearance.BorderSize = 0;
-            btnSteamUseChart.ForeColor = Color.White;
-            btnSteamUseChart.Name = "btnSteamUseChart";
-            btnSteamUseChart.UseVisualStyleBackColor = false;
             // 
             // btnPressureControlChart
             // 
@@ -183,6 +175,7 @@
             // 
             btnUser.BackColor = Color.FromArgb(76, 110, 181);
             btnUser.FlatAppearance.BorderSize = 0;
+            btnUser.FlatAppearance.MouseOverBackColor = Color.FromArgb(121, 146, 200);
             resources.ApplyResources(btnUser, "btnUser");
             btnUser.ForeColor = Color.White;
             btnUser.Name = "btnUser";
@@ -236,7 +229,9 @@
             Name = "MainForm";
             Load += MainForm_Load;
             panelSideMenu.ResumeLayout(false);
+            panelSideMenu.PerformLayout();
             panelMainMenu.ResumeLayout(false);
+            panelMainMenu.PerformLayout();
             panelProductionDataSubMenu.ResumeLayout(false);
             panelChartSubMenu.ResumeLayout(false);
             panelUserSubMenu.ResumeLayout(false);
@@ -249,7 +244,6 @@
         private Button btnSchedule;
         private Button btnPlantData;
         private Button btnMachineSetting;
-        private Button btnSteamUseChart;
         private Button btnFuelUseChart;
         private Button btnPressureControlChart;
         private Button btnChart;

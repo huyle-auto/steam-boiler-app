@@ -1,5 +1,10 @@
 {
-  "AdvisoryWindowMinutes": 1,
-  "CommitWindowMinutes": 10,
-  "MaxCorrectionEnergyMJ": 5000
+  "AdvisoryWindowSeconds": 6,
+  "CommitWindowSeconds": 12,
+  "MaxCorrectionEnergyMJ": 2500,
+  "PressureHighHighLimit":9.80,
+  "PressureHighLimit":9.40,
+  "PressureLowLimit": 6.80,
+  "PressureLowLowLimit": 6.40,
+  "MinProductionPressure": 5.00
 }

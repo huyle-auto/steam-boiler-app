@@ -3,6 +3,7 @@ using SteamBoilerApp.Models;
 using SteamBoilerApp.MVP.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,14 +48,31 @@ namespace SteamBoilerApp.MVP.Controls
             // Deadband
             if (Math.Abs(error) <= Deadband)
             {
+                _integral *= 0.9961;
                 return 0;
             }
 
-            _integral += error * deltaTimeSeconds;
+            double tentativeIntegral = _integral + error * deltaTimeSeconds;
+
+            double unclampedOutput =
+                Kp * error +
+                Ki * tentativeIntegral;
+
+            bool wouldSaturateHigh = unclampedOutput > _maxCorrectionEnergyMJ;
+            bool wouldSaturateLow = unclampedOutput < 0;
+
+            if (!(wouldSaturateHigh && error > 0) &&
+                !(wouldSaturateLow && error < 0))
+            {
+                _integral = tentativeIntegral;
+            }
 
             double energyMJ = Kp * error + Ki * _integral;
 
+            // Set output to (0.0 - 1.0)
             energyMJ = Math.Clamp(energyMJ, 0, _maxCorrectionEnergyMJ);
+
+            Debug.WriteLine("Integral is: " + _integral);
 
             return energyMJ;
         }
@@ -78,6 +96,11 @@ namespace SteamBoilerApp.MVP.Controls
 
         public void InjectEnergy(double energyMJ)
         {
+            if (Ki == 0)
+            {
+                return;
+            }
+
             _integral -= energyMJ / Ki;
         }
 

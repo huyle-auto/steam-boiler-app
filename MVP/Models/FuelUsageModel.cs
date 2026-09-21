@@ -273,44 +273,43 @@ namespace SteamBoilerApp.MVP.Models
             return nearest;
         }
 
-        public async Task<Dictionary<string, int>> GetFuelFeedLogByDayAsync(DateTime date)
+        public async Task<Dictionary<string, int>> GetFuelFeedLogByDayAndTypeAsync(DateTime date)
         {
             var query =
                 await new ProductionDbContext().FuelFeedLogs
                 .Where(f => f.Timestamp.Date == date.Date)       
-                .GroupBy(f => new { f.FuelTypeId, f.FuelType.FuelName })
+                .GroupBy(f => new { f.FuelTypeId, f.FuelType.FuelNameVn })
                 .Select(g => new
                 {
-                    FuelName = g.Key.FuelName,
+                    FuelNameVn = g.Key.FuelNameVn,
                     TotalMass = g.Sum(x => x.FuelMass)
                 })
-                .OrderBy(x => x.FuelName)  // optional
+                .OrderBy(x => x.FuelNameVn)  // optional
                 .ToListAsync();
 
-            return query.ToDictionary(x => x.FuelName, x => x.TotalMass);
+            return query.ToDictionary(x => x.FuelNameVn, x => x.TotalMass);
         }
 
-        public async Task<List<FuelFeedSummary>> GetFuelFeedLogAllAsync(DateTime date)
+        public async Task<List<FuelFeedLog>> GetFuelFeedByDayAsync(DateTime date)
         {
             using var db = new ProductionDbContext();
             DateTime start = date.Date;
-            DateTime end = date.AddDays(1);
+            DateTime end = start.AddDays(1);
 
             return await db.FuelFeedLogs
                 .Include(l => l.FuelType)
                 .Include(l => l.Unit)
                 .Where(l => l.Timestamp >= start && l.Timestamp < end)
-                .Select(l => new FuelFeedSummary
-                {
-                    FuelFeedLogId = l.FuelFeedLogId,
-                    FuelName = l.FuelType.FuelName,
-                    FuelMass = l.FuelMass,
-                    Unit = l.Unit.Symbol,
-                    Timestamp = l.Timestamp
-                })
                 .OrderByDescending(l => l.Timestamp)
                 .ToListAsync();
         }
 
+        public async Task<DateTime> GetLatestFeedLogTimeAsync()
+        {
+            using var db = new ProductionDbContext();
+
+            return await db.FuelFeedLogs
+                .MaxAsync(x => (DateTime?)x.Timestamp) ?? DateTime.MinValue;
+        }
     }
 }

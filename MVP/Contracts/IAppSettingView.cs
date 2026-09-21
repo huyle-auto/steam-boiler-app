@@ -17,11 +17,16 @@ namespace SteamBoilerApp.MVP.Contracts
 
         public void ShowConnectionState(bool state);
         public void ShowCtrlRoomState(bool state);
+        public void ShowMqttConnectionState(bool state);
+
 
         public event EventHandler ConnectClicked;
         public event EventHandler DisconnectClicked;
 
         public event EventHandler CtrlRoomConnectClicked;
         public event EventHandler CtrlRoomDisconnectClicked;
+
+        public event EventHandler? MqttConnectClicked;
+        public event EventHandler? MqttDisconnectClicked;
     }
 }

@@ -15,8 +15,10 @@ namespace SteamBoilerApp.MVP.Contracts
 
         bool IsConnected { get; }
 
-        double ReadAnalogInput(string tag);
         IReadOnlyList<SensorDatum> ExtractSensorValues(ModbusSnapshot snapshot);
+        Task WriteAllDigitalOutputsAsync(bool[] states);
+
+        double ReadAnalogInput(string tag);
 
         public event EventHandler ModbusConnected;
         public event EventHandler ModbusDisconnected;

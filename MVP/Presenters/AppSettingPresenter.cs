@@ -1,4 +1,7 @@
-﻿using SteamBoilerApp.MVP.Contracts;
+﻿using MQTTnet;
+using MQTTnet.Packets;
+using MQTTnet.Extensions.ManagedClient;
+using SteamBoilerApp.MVP.Contracts;
 using SteamBoilerApp.MVP.Services;
 using SteamBoilerApp.Toast;
 using SteamBoilerApp.Utils;
@@ -9,6 +12,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using MQTTnet.Client;
+using System.Text.Json;
 
 namespace SteamBoilerApp.MVP.Presenters
 {
@@ -17,6 +22,7 @@ namespace SteamBoilerApp.MVP.Presenters
         private readonly IAppSettingView _appSettingView;
         private readonly IAppSettingModel _appSettingModel;
         private readonly IModbusTCPService _modbusService;
+        private readonly IMqttV311Service _mqttService;
         private readonly IScheduleClientService _scheduleClientService;
         private readonly IToastNotificationService _toast;
 
@@ -26,7 +32,15 @@ namespace SteamBoilerApp.MVP.Presenters
         private const string MODBUS_DISCONNECT_TAG = "modbus_disconnect_notification";
         private const string DB_DISCONNECT_TAG = "db_disconnect_notification";
 
-        public AppSettingPresenter(IAppSettingView appSettingView, IAppSettingModel appSettingModel, IModbusTCPService modbusService, IDatabaseHealthService dbHealthService, IDataAcquisitionService dataAcqService, IScheduleClientService scheduleClientService, IToastNotificationService toastService)
+        public AppSettingPresenter(
+            IAppSettingView appSettingView, 
+            IAppSettingModel appSettingModel, 
+            IModbusTCPService modbusService, 
+            IDatabaseHealthService dbHealthService, 
+            IDataAcquisitionService dataAcqService, 
+            IScheduleClientService scheduleClientService, 
+            IToastNotificationService toastService,
+            IMqttV311Service mqttService)
         {
             this._appSettingView = appSettingView;
             this._appSettingModel = appSettingModel;
@@ -34,12 +48,24 @@ namespace SteamBoilerApp.MVP.Presenters
             this._appSettingView.DisconnectClicked += OnDisconnectClicked;
             this._appSettingView.CtrlRoomConnectClicked += OnCtrlRoomConnectClicked;
             this._appSettingView.CtrlRoomDisconnectClicked += OnCtrlRoomDisconnectClicked;
+            this._appSettingView.MqttConnectClicked += OnMqttConnectClicked;
+            this._appSettingView.MqttDisconnectClicked += OnMqttDisconnectClicked;
 
+            // Modbus
             this._modbusService = modbusService;
             this._modbusService.ModbusConnected += OnModbusConnected;
             this._modbusService.ModbusDisconnected += OnModbusDisconnected;
             this._modbusService.SnapshotUpdated += OnSnapshotUpdated;
 
+            // Mqtt
+            this._mqttService = mqttService;
+            this._mqttService.MqttConnected += OnMqttConnected;
+            this._mqttService.MqttDisconnected += (s, e) => _appSettingView.ShowMqttConnectionState(false);
+            this._mqttService.MqttReconnecting += (s, e) => _appSettingView.ShowMqttConnectionState(false);
+
+            this._mqttService.MqttMessageReceived += OnMqttMessageReceived;
+
+            // Db
             this._dbHealthService = dbHealthService;
             this._dbHealthService.DatabaseDisconnected += OnDBDisconnected;
 
@@ -51,6 +77,36 @@ namespace SteamBoilerApp.MVP.Presenters
 
             // Toast
             this._toast = toastService;
+        }
+
+        private void OnMqttMessageReceived(object? sender, MqttApplicationMessageReceivedEventArgs e)
+        {
+            string payloadString = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
+
+            Debug.WriteLine($"Topic {e.ApplicationMessage.Topic}: {payloadString}");
+        }
+
+        private async void OnMqttConnected(object? sender, EventArgs e)
+        {
+            _appSettingView.ShowMqttConnectionState(true);
+
+            // Subscribe to topics
+            var topics = new List<MqttTopicFilter>
+            {
+                new MqttTopicFilterBuilder().WithTopic("factory/mqtt-broker/status").WithAtMostOnceQoS().Build()
+            };
+
+            await _mqttService.SubscribeAsync(topics);
+        }
+
+        private async void OnMqttConnectClicked(object? sender, EventArgs e)
+        {
+            await _mqttService.StartAsync();
+        }
+
+        private async void OnMqttDisconnectClicked(object? sender, EventArgs e)
+        {
+            await _mqttService.StopAsync();
         }
 
         private async void OnSnapshotUpdated(object? sender, ModbusSnapshot e)

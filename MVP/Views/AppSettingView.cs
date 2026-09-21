@@ -23,6 +23,7 @@ namespace SteamBoilerApp.MVP.Views
 
         public int CtrlRoomPort => int.Parse(txtCtrlRoomPort.Text);
 
+
         public AppSettingView()
         {
             InitializeComponent();
@@ -32,6 +33,8 @@ namespace SteamBoilerApp.MVP.Views
         public event EventHandler? DisconnectClicked;
         public event EventHandler? CtrlRoomConnectClicked;
         public event EventHandler? CtrlRoomDisconnectClicked;
+        public event EventHandler? MqttConnectClicked;
+        public event EventHandler? MqttDisconnectClicked;
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
@@ -52,6 +55,11 @@ namespace SteamBoilerApp.MVP.Views
             lblCtrlRoomStatus.BackColor = state ? Color.LimeGreen : Color.Red;
         }
 
+        public void ShowMqttConnectionState(bool state)
+        {
+            lblMqttStatus.BackColor = state ? Color.LimeGreen : Color.Red;
+        }
+
         private void btnCtrlRoomConnect_Click(object sender, EventArgs e)
         {
             CtrlRoomConnectClicked?.Invoke(this, EventArgs.Empty);
@@ -60,6 +68,16 @@ namespace SteamBoilerApp.MVP.Views
         private void btnCtrlRoomDisconnect_Click(object sender, EventArgs e)
         {
             CtrlRoomDisconnectClicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void btnMqttConnect_Click(object sender, EventArgs e)
+        {
+            MqttConnectClicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void btnMqttDisconnect_Click(object sender, EventArgs e)
+        {
+            MqttDisconnectClicked?.Invoke(this, EventArgs.Empty);
         }
     }
 }
