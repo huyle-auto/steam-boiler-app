@@ -64,6 +64,7 @@
     <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="CodeArtEng.Gauge" Version="3.1.1.100" />
     <PackageReference Include="DG.AdvancedDataGridView" Version="1.2.30115.18" />
+    <PackageReference Include="HiveMQtt" Version="0.47.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">

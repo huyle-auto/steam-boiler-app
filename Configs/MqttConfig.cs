@@ -15,7 +15,8 @@ namespace SteamBoilerApp.Configs
         public string Password { get; set; } = string.Empty;
         public int KeepAliveSeconds { get; set; }
         public int AutoReconnectSeconds { get; set; }
-        public int ConnectionTimeoutSeconds { get; set; }
+        public int ConnectTimeoutSeconds { get; set; }
+        public int DisconnectTimeoutSeconds { get; set; }
         public int MaxPendingMessages { get; set; }
     }
 }

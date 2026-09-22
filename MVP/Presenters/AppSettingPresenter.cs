@@ -102,6 +102,14 @@ namespace SteamBoilerApp.MVP.Presenters
         private async void OnMqttConnectClicked(object? sender, EventArgs e)
         {
             await _mqttService.StartAsync();
+
+            var payload = new
+            {
+                status = "online",
+                timestamp = DateTime.UtcNow.ToString("o")
+            };
+
+            await _mqttService.PublishAsync("factory/boiler/scada/status", JsonSerializer.Serialize(payload), 0);
         }
 
         private async void OnMqttDisconnectClicked(object? sender, EventArgs e)
