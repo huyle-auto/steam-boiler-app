@@ -1,0 +1,1 @@
+Visit MES integration service projects [node-red-steam-boiler-app](https://github.com/huyle-auto/node-red-steam-boiler-app) and [scgp-mes-integration](https://github.com/huyle-auto/scgp-mes-integration)
