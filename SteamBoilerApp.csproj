@@ -38,7 +38,7 @@
   <ItemGroup>
     <None Remove="Configs\control_config.json" />
     <None Remove="Configs\modbus_settings.json" />
-    <None Remove="Configs\mqtt_settings.json" />
+    <None Remove="Configs\mqtt_settings_v50.json" />
     <None Remove="Images\system_notif_bg_16_9.jpg" />
   </ItemGroup>
 
@@ -53,6 +53,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Configs\modbus_settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Configs\mqtt_settings_v50.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="Images\system_notif_bg_16_9.jpg">
@@ -88,7 +91,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Configs\mqtt_settings.json">
+    <Content Include="Configs\mqtt_settings_v311.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

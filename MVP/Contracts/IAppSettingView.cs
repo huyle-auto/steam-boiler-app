@@ -17,8 +17,9 @@ namespace SteamBoilerApp.MVP.Contracts
 
         public void ShowConnectionState(bool state);
         public void ShowCtrlRoomState(bool state);
-        public void ShowMqttConnectionState(bool state);
 
+        public void ShowMqttV311ConnectionState(bool state);
+        void ShowMqttV50ConnectionState(bool state);
 
         public event EventHandler ConnectClicked;
         public event EventHandler DisconnectClicked;
@@ -26,7 +27,11 @@ namespace SteamBoilerApp.MVP.Contracts
         public event EventHandler CtrlRoomConnectClicked;
         public event EventHandler CtrlRoomDisconnectClicked;
 
-        public event EventHandler? MqttConnectClicked;
-        public event EventHandler? MqttDisconnectClicked;
+        public event EventHandler? MqttV311ConnectClicked;
+        public event EventHandler? MqttV311DisconnectClicked;
+
+        public event EventHandler? MqttV50ConnectClicked;
+        public event EventHandler? MqttV50DisconnectClicked;
+        public event EventHandler? MqttV50PublishClicked;
     }
 }

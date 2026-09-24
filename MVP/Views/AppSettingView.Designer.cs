@@ -53,14 +53,22 @@
             label9 = new Label();
             txtCtrlRoomIPAddr = new TextBox();
             panel3 = new Panel();
-            lblMqttStatus = new Label();
-            btnMqttDisconnect = new Button();
+            lblMqttV311Status = new Label();
+            btnMqttV311Disconnect = new Button();
             label12 = new Label();
             label3 = new Label();
-            btnMqttConnect = new Button();
+            btnMqttV311Connect = new Button();
+            panel4 = new Panel();
+            MqttV50Publish = new Button();
+            lblMqttV50Status = new Label();
+            label11 = new Label();
+            btnMqttV50Disconnect = new Button();
+            btnMqttV50Connect = new Button();
+            label10 = new Label();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             panel3.SuspendLayout();
+            panel4.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
@@ -230,7 +238,7 @@
             panel2.Controls.Add(label8);
             panel2.Controls.Add(label9);
             panel2.Controls.Add(txtCtrlRoomIPAddr);
-            panel2.Location = new Point(16, 379);
+            panel2.Location = new Point(16, 443);
             panel2.Name = "panel2";
             panel2.Size = new Size(1068, 156);
             panel2.TabIndex = 11;
@@ -372,39 +380,39 @@
             // 
             // panel3
             // 
-            panel3.Controls.Add(lblMqttStatus);
-            panel3.Controls.Add(btnMqttDisconnect);
+            panel3.Controls.Add(lblMqttV311Status);
+            panel3.Controls.Add(btnMqttV311Disconnect);
             panel3.Controls.Add(label12);
             panel3.Controls.Add(label3);
-            panel3.Controls.Add(btnMqttConnect);
+            panel3.Controls.Add(btnMqttV311Connect);
             panel3.Location = new Point(16, 186);
             panel3.Name = "panel3";
-            panel3.Size = new Size(1068, 172);
+            panel3.Size = new Size(1068, 103);
             panel3.TabIndex = 12;
             // 
-            // lblMqttStatus
+            // lblMqttV311Status
             // 
-            lblMqttStatus.Anchor = AnchorStyles.Top;
-            lblMqttStatus.BackColor = Color.Red;
-            lblMqttStatus.BorderStyle = BorderStyle.FixedSingle;
-            lblMqttStatus.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            lblMqttStatus.Location = new Point(166, 124);
-            lblMqttStatus.Name = "lblMqttStatus";
-            lblMqttStatus.Size = new Size(36, 23);
-            lblMqttStatus.TabIndex = 12;
+            lblMqttV311Status.Anchor = AnchorStyles.Top;
+            lblMqttV311Status.BackColor = Color.Red;
+            lblMqttV311Status.BorderStyle = BorderStyle.FixedSingle;
+            lblMqttV311Status.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblMqttV311Status.Location = new Point(166, 63);
+            lblMqttV311Status.Name = "lblMqttV311Status";
+            lblMqttV311Status.Size = new Size(36, 23);
+            lblMqttV311Status.TabIndex = 12;
             // 
-            // btnMqttDisconnect
+            // btnMqttV311Disconnect
             // 
-            btnMqttDisconnect.Anchor = AnchorStyles.Top;
-            btnMqttDisconnect.AutoSize = true;
-            btnMqttDisconnect.Font = new Font("Segoe UI", 12F);
-            btnMqttDisconnect.Location = new Point(894, 55);
-            btnMqttDisconnect.Name = "btnMqttDisconnect";
-            btnMqttDisconnect.Size = new Size(104, 31);
-            btnMqttDisconnect.TabIndex = 16;
-            btnMqttDisconnect.Text = "Stop";
-            btnMqttDisconnect.UseVisualStyleBackColor = true;
-            btnMqttDisconnect.Click += btnMqttDisconnect_Click;
+            btnMqttV311Disconnect.Anchor = AnchorStyles.Top;
+            btnMqttV311Disconnect.AutoSize = true;
+            btnMqttV311Disconnect.Font = new Font("Segoe UI", 12F);
+            btnMqttV311Disconnect.Location = new Point(894, 55);
+            btnMqttV311Disconnect.Name = "btnMqttV311Disconnect";
+            btnMqttV311Disconnect.Size = new Size(104, 31);
+            btnMqttV311Disconnect.TabIndex = 16;
+            btnMqttV311Disconnect.Text = "Stop";
+            btnMqttV311Disconnect.UseVisualStyleBackColor = true;
+            btnMqttV311Disconnect.Click += btnMqttV311Disconnect_Click;
             // 
             // label12
             // 
@@ -412,7 +420,7 @@
             label12.AutoSize = true;
             label12.FlatStyle = FlatStyle.Flat;
             label12.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label12.Location = new Point(77, 124);
+            label12.Location = new Point(77, 63);
             label12.Name = "label12";
             label12.Size = new Size(52, 21);
             label12.TabIndex = 11;
@@ -426,28 +434,117 @@
             label3.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label3.Location = new Point(9, 12);
             label3.Name = "label3";
-            label3.Size = new Size(108, 21);
+            label3.Size = new Size(158, 21);
             label3.TabIndex = 11;
-            label3.Text = "MQTT Broker";
+            label3.Text = "MQTT Broker V3.1.1";
             label3.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // btnMqttConnect
+            // btnMqttV311Connect
             // 
-            btnMqttConnect.Anchor = AnchorStyles.Top;
-            btnMqttConnect.AutoSize = true;
-            btnMqttConnect.Font = new Font("Segoe UI", 12F);
-            btnMqttConnect.Location = new Point(768, 55);
-            btnMqttConnect.Name = "btnMqttConnect";
-            btnMqttConnect.Size = new Size(104, 31);
-            btnMqttConnect.TabIndex = 15;
-            btnMqttConnect.Text = "Start";
-            btnMqttConnect.UseVisualStyleBackColor = true;
-            btnMqttConnect.Click += btnMqttConnect_Click;
+            btnMqttV311Connect.Anchor = AnchorStyles.Top;
+            btnMqttV311Connect.AutoSize = true;
+            btnMqttV311Connect.Font = new Font("Segoe UI", 12F);
+            btnMqttV311Connect.Location = new Point(768, 55);
+            btnMqttV311Connect.Name = "btnMqttV311Connect";
+            btnMqttV311Connect.Size = new Size(104, 31);
+            btnMqttV311Connect.TabIndex = 15;
+            btnMqttV311Connect.Text = "Start";
+            btnMqttV311Connect.UseVisualStyleBackColor = true;
+            btnMqttV311Connect.Click += btnMqttV311Connect_Click;
+            // 
+            // panel4
+            // 
+            panel4.Controls.Add(MqttV50Publish);
+            panel4.Controls.Add(lblMqttV50Status);
+            panel4.Controls.Add(label11);
+            panel4.Controls.Add(btnMqttV50Disconnect);
+            panel4.Controls.Add(btnMqttV50Connect);
+            panel4.Controls.Add(label10);
+            panel4.Location = new Point(16, 311);
+            panel4.Name = "panel4";
+            panel4.Size = new Size(1068, 108);
+            panel4.TabIndex = 13;
+            // 
+            // MqttV50Publish
+            // 
+            MqttV50Publish.Anchor = AnchorStyles.Top;
+            MqttV50Publish.AutoSize = true;
+            MqttV50Publish.Font = new Font("Segoe UI", 12F);
+            MqttV50Publish.Location = new Point(638, 59);
+            MqttV50Publish.Name = "MqttV50Publish";
+            MqttV50Publish.Size = new Size(104, 31);
+            MqttV50Publish.TabIndex = 22;
+            MqttV50Publish.Text = "Publish";
+            MqttV50Publish.UseVisualStyleBackColor = true;
+            MqttV50Publish.Click += MqttV50Publish_Click;
+            // 
+            // lblMqttV50Status
+            // 
+            lblMqttV50Status.Anchor = AnchorStyles.Top;
+            lblMqttV50Status.BackColor = Color.Red;
+            lblMqttV50Status.BorderStyle = BorderStyle.FixedSingle;
+            lblMqttV50Status.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblMqttV50Status.Location = new Point(166, 67);
+            lblMqttV50Status.Name = "lblMqttV50Status";
+            lblMqttV50Status.Size = new Size(36, 23);
+            lblMqttV50Status.TabIndex = 19;
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.FlatStyle = FlatStyle.Flat;
+            label11.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label11.Location = new Point(9, 16);
+            label11.Name = "label11";
+            label11.Size = new Size(145, 21);
+            label11.TabIndex = 18;
+            label11.Text = "MQTT Broker V5.0";
+            label11.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // btnMqttV50Disconnect
+            // 
+            btnMqttV50Disconnect.Anchor = AnchorStyles.Top;
+            btnMqttV50Disconnect.AutoSize = true;
+            btnMqttV50Disconnect.Font = new Font("Segoe UI", 12F);
+            btnMqttV50Disconnect.Location = new Point(894, 59);
+            btnMqttV50Disconnect.Name = "btnMqttV50Disconnect";
+            btnMqttV50Disconnect.Size = new Size(104, 31);
+            btnMqttV50Disconnect.TabIndex = 21;
+            btnMqttV50Disconnect.Text = "Disconnect";
+            btnMqttV50Disconnect.UseVisualStyleBackColor = true;
+            btnMqttV50Disconnect.Click += btnMqttV50Disconnect_Click;
+            // 
+            // btnMqttV50Connect
+            // 
+            btnMqttV50Connect.Anchor = AnchorStyles.Top;
+            btnMqttV50Connect.AutoSize = true;
+            btnMqttV50Connect.Font = new Font("Segoe UI", 12F);
+            btnMqttV50Connect.Location = new Point(768, 59);
+            btnMqttV50Connect.Name = "btnMqttV50Connect";
+            btnMqttV50Connect.Size = new Size(104, 31);
+            btnMqttV50Connect.TabIndex = 20;
+            btnMqttV50Connect.Text = "Connect";
+            btnMqttV50Connect.UseVisualStyleBackColor = true;
+            btnMqttV50Connect.Click += btnMqttV50Connect_Click;
+            // 
+            // label10
+            // 
+            label10.Anchor = AnchorStyles.Top;
+            label10.AutoSize = true;
+            label10.FlatStyle = FlatStyle.Flat;
+            label10.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label10.Location = new Point(77, 67);
+            label10.Name = "label10";
+            label10.Size = new Size(52, 21);
+            label10.TabIndex = 17;
+            label10.Text = "Status";
+            label10.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // AppSettingView
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(panel4);
             Controls.Add(panel3);
             Controls.Add(panel2);
             Controls.Add(panel1);
@@ -459,6 +556,8 @@
             panel2.PerformLayout();
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
+            panel4.ResumeLayout(false);
+            panel4.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -490,9 +589,16 @@
         private TextBox txtCtrlRoomPort;
         private Panel panel3;
         private Label label3;
-        private Button btnMqttDisconnect;
-        private Button btnMqttConnect;
-        private Label lblMqttStatus;
+        private Button btnMqttV311Disconnect;
+        private Button btnMqttV311Connect;
+        private Label lblMqttV311Status;
         private Label label12;
+        private Panel panel4;
+        private Label lblMqttV50Status;
+        private Label label11;
+        private Button btnMqttV50Disconnect;
+        private Button btnMqttV50Connect;
+        private Label label10;
+        private Button MqttV50Publish;
     }
 }

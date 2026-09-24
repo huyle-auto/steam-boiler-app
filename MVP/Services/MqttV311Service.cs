@@ -1,4 +1,7 @@
-﻿using MQTTnet;
+﻿using HiveMQtt.Client;
+using HiveMQtt.Client.Options;
+using HiveMQtt.MQTT5.ReasonCodes;
+using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
 using MQTTnet.Packets;
@@ -17,7 +20,7 @@ namespace SteamBoilerApp.MVP.Services
 {
     public class MqttV311Service : IMqttV311Service
     {
-        private readonly MqttConfig _mqttConfig;
+        private readonly MqttConfigV311 _mqttConfig;
 
         private IManagedMqttClient _managedClient;
         private ManagedMqttClientOptions _options;
@@ -33,11 +36,13 @@ namespace SteamBoilerApp.MVP.Services
         public event EventHandler<ApplicationMessageSkippedEventArgs>? MqttMessageSkipped;
         public event EventHandler<ManagedProcessFailedEventArgs>? MqttSynchronizingSubscriptionsFailed; // Fires when automatic subscriptions sync fails, may need to re-subscribe manually
 
-        public MqttV311Service(MqttConfig mqttConfig)
+        public MqttV311Service(MqttConfigV311 mqttConfig)
         {
             _mqttConfig = mqttConfig;
 
             InitializeClient();
+
+            BuildClientOptions();
 
             InitializeEvents();
         }
@@ -58,21 +63,18 @@ namespace SteamBoilerApp.MVP.Services
             var mqttFactory = new MqttFactory();
 
             _managedClient = mqttFactory.CreateManagedMqttClient();
-
-            BuildClientOptions();
         }
 
-        public void BuildClientOptions(bool isForceCleanSession = false)
+        private void BuildClientOptions(bool isForceCleanSession = false)
         {
             var baseOptions = new MqttClientOptionsBuilder()
-                .WithClientId(_mqttConfig.ClientId)
+                .WithClientId(_mqttConfig.ClientIdV311)
                 .WithTcpServer(_mqttConfig.BrokerAddress, _mqttConfig.BrokerPort)
                 .WithCredentials(_mqttConfig.Username, _mqttConfig.Password)
                 .WithProtocolVersion(MQTTnet.Formatter.MqttProtocolVersion.V311)
                 .WithKeepAlivePeriod(TimeSpan.FromSeconds(_mqttConfig.KeepAliveSeconds))
                 .WithTimeout(TimeSpan.FromSeconds(_mqttConfig.ConnectTimeoutSeconds))
                 .WithCleanSession(isForceCleanSession)
-                .WithSessionExpiryInterval(3600) // Persistent session
                 .WithTlsOptions(o =>
                 {
                     o.WithSslProtocols(SslProtocols.Tls12 | SslProtocols.Tls13);
@@ -155,14 +157,13 @@ namespace SteamBoilerApp.MVP.Services
             if (_managedClient.IsStarted)
             {
                 return;
-
             }
 
             try
             {
                 await _managedClient.StartAsync(_options);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine($"Failed to start MQTT client: {ex.Message}");
             }
@@ -239,6 +240,31 @@ namespace SteamBoilerApp.MVP.Services
             catch (Exception ex)
             {
                 Debug.WriteLine($"Failed to unsubscribe from topics: {string.Join(", ", topics)}:\n {ex.Message}");
+            }
+        }
+
+        private async Task WipeSubscriptionList()
+        {
+            try
+            {
+                // Stop the client
+                await StopAsync();
+                // Build options again with isForceCleanSession = true
+                BuildClientOptions(isForceCleanSession: true);
+                // Start the client again, don't subscribe to any topic
+                await StartAsync();
+                // Stop the client again
+                await StopAsync();
+                // Build options again with isForceCleanSession = false
+                BuildClientOptions(isForceCleanSession: false);
+
+                // Start the client again, and subscribe to topics again.
+                // Pending.... The user of this class should start and subscribe since this class
+                // does not have subscribe list
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to wipe subscription list: {ex.Message}");
             }
         }
 

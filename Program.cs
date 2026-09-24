@@ -41,8 +41,11 @@ namespace SteamBoilerApp
             string json = File.ReadAllText("Configs/modbus_settings.json");
             var modbusConfig = JsonSerializer.Deserialize<ModbusDeviceConfig>(json);
 
-            string mqttJson = File.ReadAllText("Configs/mqtt_settings.json");
-            var mqttConfig = JsonSerializer.Deserialize<MqttConfig>(mqttJson);
+            string mqttV311Json = File.ReadAllText("Configs/mqtt_settings_v311.json");
+            var mqttConfigV311 = JsonSerializer.Deserialize<MqttConfigV311>(mqttV311Json);
+
+            string mqttV50Json = File.ReadAllText("Configs/mqtt_settings_v50.json");
+            var mqttConfigV50 = JsonSerializer.Deserialize<MqttConfigV50>(mqttV50Json);
 
             // CONTROL CONFIGURATION
             string pidJson = File.ReadAllText("Configs/control_config.json");
@@ -51,7 +54,8 @@ namespace SteamBoilerApp
             // SERVICE
             var toastService = new ToastNotificationService();
             var modbusService = new ModbusTCPService(modbusConfig ?? new ModbusDeviceConfig()); // Return empty config if deserialization fails to prevent crash
-            var mqttService = new MqttV311Service(mqttConfig ?? new MqttConfig());  // Return empty config if deserialization fails to prevent crash
+            var mqttV311Service = new MqttV311Service(mqttConfigV311 ?? new MqttConfigV311());  
+            var mqttV50Service = new MqttV50Service(mqttConfigV50 ?? new MqttConfigV50()); 
             var dataExportService = new DataExportService();
             var dbHealthService = new DatabaseHealthService();
             var dataAcqService = new DataAcquisitionService();
@@ -69,7 +73,7 @@ namespace SteamBoilerApp
             // APP SETTING
             var appSettingView = new MVP.Views.AppSettingView();
             var appSettingModel = new MVP.Models.AppSettingModel(modbusService);
-            var appSettingPresenter = new MVP.Presenters.AppSettingPresenter(appSettingView, appSettingModel, modbusService, dbHealthService, dataAcqService, scheduleClientService, toastService, mqttService);
+            var appSettingPresenter = new MVP.Presenters.AppSettingPresenter(appSettingView, appSettingModel, modbusService, dbHealthService, dataAcqService, scheduleClientService, toastService, mqttV311Service, mqttV50Service);
 
             // OVERVIEW
             var overviewView = new OverviewView();

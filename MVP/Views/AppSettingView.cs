@@ -33,8 +33,12 @@ namespace SteamBoilerApp.MVP.Views
         public event EventHandler? DisconnectClicked;
         public event EventHandler? CtrlRoomConnectClicked;
         public event EventHandler? CtrlRoomDisconnectClicked;
-        public event EventHandler? MqttConnectClicked;
-        public event EventHandler? MqttDisconnectClicked;
+        public event EventHandler? MqttV311ConnectClicked;
+        public event EventHandler? MqttV311DisconnectClicked;
+
+        public event EventHandler? MqttV50ConnectClicked;
+        public event EventHandler? MqttV50DisconnectClicked;
+        public event EventHandler? MqttV50PublishClicked;
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
@@ -55,9 +59,9 @@ namespace SteamBoilerApp.MVP.Views
             lblCtrlRoomStatus.BackColor = state ? Color.LimeGreen : Color.Red;
         }
 
-        public void ShowMqttConnectionState(bool state)
+        public void ShowMqttV311ConnectionState(bool state)
         {
-            lblMqttStatus.BackColor = state ? Color.LimeGreen : Color.Red;
+            lblMqttV311Status.BackColor = state ? Color.LimeGreen : Color.Red;
         }
 
         private void btnCtrlRoomConnect_Click(object sender, EventArgs e)
@@ -70,14 +74,34 @@ namespace SteamBoilerApp.MVP.Views
             CtrlRoomDisconnectClicked?.Invoke(this, EventArgs.Empty);
         }
 
-        private void btnMqttConnect_Click(object sender, EventArgs e)
+        private void btnMqttV311Connect_Click(object sender, EventArgs e)
         {
-            MqttConnectClicked?.Invoke(this, EventArgs.Empty);
+            MqttV311ConnectClicked?.Invoke(this, EventArgs.Empty);
         }
 
-        private void btnMqttDisconnect_Click(object sender, EventArgs e)
+        private void btnMqttV311Disconnect_Click(object sender, EventArgs e)
         {
-            MqttDisconnectClicked?.Invoke(this, EventArgs.Empty);
+            MqttV311DisconnectClicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void btnMqttV50Connect_Click(object sender, EventArgs e)
+        {
+            MqttV50ConnectClicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void btnMqttV50Disconnect_Click(object sender, EventArgs e)
+        {
+            MqttV50DisconnectClicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void MqttV50Publish_Click(object sender, EventArgs e)
+        {
+            MqttV50PublishClicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void ShowMqttV50ConnectionState(bool state)
+        {
+            lblMqttV50Status.BackColor = state ? Color.LimeGreen : Color.Red;
         }
     }
 }

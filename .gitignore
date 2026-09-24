@@ -5,7 +5,8 @@
 
 # Secrets
 App.config
-mqtt_settings.json
+mqtt_settings_v311.json
+mqtt_settings_v50.json
 
 # User-specific files
 *.rsuser
