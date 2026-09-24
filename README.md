@@ -1,12 +1,12 @@
 ## Case study: 
 
-Context: Industrial Steam Boiler of a factory is experiencing high fuel consumption and higher manufacturing cost per ton of exported product
+- **Context**: Industrial Steam Boiler of a factory is experiencing high fuel consumption and higher manufacturing cost per ton of exported product
 
-Problem: After a period of data acquisition and data analysis. The problem is concluded that it was from inefficiency in boiler operations, due to the fact that operators have limited source of pressure data and lack of awareness in proper operating techniques.
+- **Problem**: After a period of data acquisition and data analysis. The problem is concluded that it was from inefficiency in boiler operations, due to the fact that operators have limited source of pressure data and lack of awareness in proper operating techniques.
 
-Action: Designed this SCADA software using WinForms with automatic real-time pressure data logging and historian, equipped with a PID Controller. This then helped the operators in determining the trend of pressure signal to decide whether to add fuel, and the specific amount to add them to keep pressure stable at a setpoint.
+- **Action**: Designed this SCADA software using WinForms with automatic real-time pressure data logging and historian, equipped with a PID Controller. This then helped the operators in determining the trend of pressure signal to decide whether to add fuel, and the specific amount to add them to keep pressure stable at a setpoint.
 
-Outcome: Saved 20-30 % (~6.6 M VND) of total fuel consumption for steam boiler.
+- **Outcome**: Saved 20-30 % (~6.6 M VND) of total fuel consumption for steam boiler.
 
 ## Screenshots:
 
