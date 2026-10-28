@@ -1,0 +1,12 @@
+{
+  "Host": "HOST_NAME",
+  "Port": 8883,
+  "ClientId": "CLIENT_ID",
+  "Username": "USERNAME",
+  "Password": "PASSWORD",
+  "UseTls": true,
+  "KeepAliveSeconds": 60,
+  "SessionExpiryInterval": 300,
+  "ConnectTimeoutMs": 5000,
+  "ResponseTimeoutMs": 5000
+}
